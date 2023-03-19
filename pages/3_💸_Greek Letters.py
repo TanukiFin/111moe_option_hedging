@@ -15,10 +15,11 @@ v0_url = "https://api.helius.xyz/v0"
 v1_url = "https://api.helius.xyz/v1"
 
 st.set_page_config(
-    page_title="Delta hedging",
+    page_title="Greek Letters",
     page_icon="📈",
     #layout="wide",
 )
+
 
 # 不要有hamburger, footer: Made with Streamlit
 st.markdown("""
@@ -34,9 +35,11 @@ st.markdown("""
 </style>
 """,unsafe_allow_html=True)
 
-st.header("Delta hedging")
+st.header("Greek Letters")
+st.text("GBM模擬股價，S0 = 50，T=1(1年)，共20步、一步t=0.05\
+        \n觀察各期t的option價格、Greek Letters")
 
-# function
+# function ================================================================================================
 def d1(S,K,r,sigma,T):
     return ((np.log(S/K) + (r + (sigma**2) / 2) * T)) / (sigma * np.sqrt(T))
 def d2(S,K,r,sigma,T):
@@ -138,7 +141,6 @@ def get_GBM_St():
     
     return pd.concat([df,df_greek],axis=1)
 
-
 # Strike Price ================================================================================================
 c1, c2, c3 = st.columns(3)
 with c1:
@@ -156,6 +158,7 @@ st.button("Simulate")
 
 r=0.05
 df = get_GBM_St()
+
 # 股價 & Greek Letters圖 ==================================================================================
 c1, c2 = st.columns(2)
 with c1:
@@ -165,5 +168,37 @@ with c2:
     fig = px.line(df.round(2), x="t", y=["A_Price","B_Price","C_Price"], title="Option Price", height=300, width=500, template="plotly_white")#.update_layout(showlegend=False)
     st.plotly_chart(fig)
 
-# 損益圖 ==================================================================================
+
+c1, c2 = st.columns([2,0.5])
+with c1:
+    fig = px.line(df.round(4), x="t", y=["A_Delta","B_Delta","C_Delta"], title="Option Delta", labels={'value': "Delta"},height=300, width=500, template="plotly_white")#.update_layout(showlegend=False)
+    st.plotly_chart(fig)
+with c2:
+    st.latex(r"""待更新
+    \Delta W_t \text{\textasciitilde} \mathcal{N}(0, \textcolor{red}{sigma} \times \Delta t) 
+    """)
+c1, c2 = st.columns([2,0.5])
+with c1:
+    fig = px.line(df.round(4), x="t", y=["A_Gamma","B_Gamma","C_Gamma"], title="Option Gamma", labels={'value': "Gamma"}, height=300, width=500, template="plotly_white")#.update_layout(showlegend=False)
+    st.plotly_chart(fig)
+with c2:
+    st.latex(r"""
+    \Delta W_t \text{\textasciitilde} \mathcal{N}(0, \textcolor{red}{sigma} \times \Delta t) 
+    """)
+c1, c2 = st.columns([2,0.5])
+with c1:
+    fig = px.line(df.round(4), x="t", y=["A_Vega","B_Vega","C_Vega"], title="Option Vega", labels={'value': "Vega"}, height=300, width=500, template="plotly_white")#.update_layout(showlegend=False)
+    st.plotly_chart(fig)
+with c2:
+    st.latex(r"""
+    \Delta W_t \text{\textasciitilde} \mathcal{N}(0, \textcolor{red}{sigma} \times \Delta t) 
+    """)
+c1, c2 = st.columns([2,0.5])
+with c1:
+    fig = px.line(df.round(4), x="t", y=["A_Theta","B_Theta","C_Theta"], title="Option Theta", labels={'value': "Theta"}, height=300, width=500, template="plotly_white")#.update_layout(showlegend=False)
+    st.plotly_chart(fig)
+with c2:
+    st.latex(r"""
+    \Delta W_t \text{\textasciitilde} \mathcal{N}(0, \textcolor{red}{sigma} \times \Delta t) 
+    """)
 
