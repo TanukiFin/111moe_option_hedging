@@ -76,7 +76,7 @@ st.markdown(
 多了一個sigma，t=0時S不一定=0，符合股價
 """)
 st.latex(r"""
-\Delta W_t \text{\textasciitilde} \mathcal{N}(0, sigma \times \Delta t) 
+\Delta W_t \text{\textasciitilde} \mathcal{N}(0, \textcolor{red}{sigma} \times \Delta t) 
 """)
 c1, c2 = st.columns(2)
 with c1:
