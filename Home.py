@@ -37,3 +37,4 @@ with c1:
     st.info('**Power by: [@tanuki](https://twitter.com/g_dalice)**', icon="💡")
 with c2:
     st.info('**GitHub: @tanukifin**', icon="💻")
+

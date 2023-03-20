@@ -9,11 +9,6 @@ import plotly.express as px
 from scipy import log,exp,sqrt,stats
 from scipy.stats import norm
 
-api_key="12a476fe-a758-47da-bd31-4c4942430f23"
-api_key="d8ae61a9-6d58-491f-9128-7fecaddf0324"
-v0_url = "https://api.helius.xyz/v0"
-v1_url = "https://api.helius.xyz/v1"
-
 st.set_page_config(
     page_title="Greek Letters",
     page_icon="📈",
@@ -117,7 +112,7 @@ def get_GBM_St():
     St = S0 * St.cumprod(axis=0) # 累積加減
 
     time = np.linspace(0,T,steps+1)
-    df = pd.concat([pd.DataFrame(time,columns=["t"]),pd.DataFrame(St,columns=["St"])],axis=1)
+    df = pd.concat([pd.DataFrame(time,columns=["第t期"]),pd.DataFrame(St,columns=["St"])],axis=1)
     df_greek = pd.DataFrame(columns=["A_Price","A_Delta","A_Gamma","A_Vega", "A_Theta",
                                     "B_Price","B_Delta","B_Gamma","B_Vega", "B_Theta",
                                     "C_Price","C_Delta","C_Gamma","C_Vega", "C_Theta"])
@@ -127,8 +122,8 @@ def get_GBM_St():
     for i in range(len(df)):
         option=[]
         for x in range(len(CP)):
-            c = call(df.at[i,"St"], K_list[x], r, sigma, df.at[i,"t"])
-            p = put(df.at[i,"St"], K_list[x], r, sigma, df.at[i,"t"])
+            c = call(df.at[i,"St"], K_list[x], r, sigma, T-df.at[i,"第t期"])
+            p = put(df.at[i,"St"], K_list[x], r, sigma, T-df.at[i,"第t期"])
             if CP[x] == "Long Call":
                 option.append( np.hstack([c.price, c.greek]) )
             elif CP[x] == "Long Put":
@@ -162,43 +157,52 @@ df = get_GBM_St()
 # 股價 & Greek Letters圖 ==================================================================================
 c1, c2 = st.columns(2)
 with c1:
-    fig = px.line(df.round(2), x="t", y="St", title="Stock Price",height=300, width=300, template="plotly_white").update_layout(showlegend=False)
+    fig = px.line(df.round(2), x="第t期", y="St", title="Stock Price",height=300, width=300, template="plotly_white").update_layout(showlegend=False)
     st.plotly_chart(fig)
 with c2:
-    fig = px.line(df.round(2), x="t", y=["A_Price","B_Price","C_Price"], title="Option Price", height=300, width=500, template="plotly_white")#.update_layout(showlegend=False)
+    fig = px.line(df.round(2), x="第t期", y=["A_Price","B_Price","C_Price"], title="Option Price", height=300, width=500, template="plotly_white")#.update_layout(showlegend=False)
     st.plotly_chart(fig)
 
-
+# Delta
 c1, c2 = st.columns([2,0.5])
 with c1:
-    fig = px.line(df.round(4), x="t", y=["A_Delta","B_Delta","C_Delta"], title="Option Delta", labels={'value': "Delta"},height=300, width=500, template="plotly_white")#.update_layout(showlegend=False)
-    st.plotly_chart(fig)
-with c2:
-    st.latex(r"""待更新
-    \Delta W_t \text{\textasciitilde} \mathcal{N}(0, \textcolor{red}{sigma} \times \Delta t) 
-    """)
-c1, c2 = st.columns([2,0.5])
-with c1:
-    fig = px.line(df.round(4), x="t", y=["A_Gamma","B_Gamma","C_Gamma"], title="Option Gamma", labels={'value': "Gamma"}, height=300, width=500, template="plotly_white")#.update_layout(showlegend=False)
+    fig = px.line(df.round(4), x="第t期", y=["A_Delta","B_Delta","C_Delta"], title="Option Delta", labels={'value': "Delta"},height=300, width=500, template="plotly_white")#.update_layout(showlegend=False)
     st.plotly_chart(fig)
 with c2:
     st.latex(r"""
-    \Delta W_t \text{\textasciitilde} \mathcal{N}(0, \textcolor{red}{sigma} \times \Delta t) 
+    Delta \space of \space Call=\mathcal{N}(d_1) 
     """)
+    st.latex(r"""
+    Delta \space of \space Put=\mathcal{N}(d_1)-1
+    """)
+# Gamma
 c1, c2 = st.columns([2,0.5])
 with c1:
-    fig = px.line(df.round(4), x="t", y=["A_Vega","B_Vega","C_Vega"], title="Option Vega", labels={'value': "Vega"}, height=300, width=500, template="plotly_white")#.update_layout(showlegend=False)
+    fig = px.line(df.round(4), x="第t期", y=["A_Gamma","B_Gamma","C_Gamma"], title="Option Gamma", labels={'value': "Gamma"}, height=300, width=500, template="plotly_white")#.update_layout(showlegend=False)
     st.plotly_chart(fig)
 with c2:
     st.latex(r"""
-    \Delta W_t \text{\textasciitilde} \mathcal{N}(0, \textcolor{red}{sigma} \times \Delta t) 
+    Gamma= \frac{\mathcal{N}^{\prime}(d_1)}{S_0 \sigma \sqrt{T}}
     """)
+# Vega
 c1, c2 = st.columns([2,0.5])
 with c1:
-    fig = px.line(df.round(4), x="t", y=["A_Theta","B_Theta","C_Theta"], title="Option Theta", labels={'value': "Theta"}, height=300, width=500, template="plotly_white")#.update_layout(showlegend=False)
+    fig = px.line(df.round(4), x="第t期", y=["A_Vega","B_Vega","C_Vega"], title="Option Vega", labels={'value': "Vega"}, height=300, width=500, template="plotly_white")#.update_layout(showlegend=False)
     st.plotly_chart(fig)
 with c2:
     st.latex(r"""
-    \Delta W_t \text{\textasciitilde} \mathcal{N}(0, \textcolor{red}{sigma} \times \Delta t) 
+    Vega= S_0 \sqrt{T} \mathcal{N}(d_1)
+    """)
+# Theta
+c1, c2 = st.columns([2,0.5])
+with c1:
+    fig = px.line(df.round(4), x="第t期", y=["A_Theta","B_Theta","C_Theta"], title="Option Theta", labels={'value': "Theta"}, height=300, width=500, template="plotly_white")#.update_layout(showlegend=False)
+    st.plotly_chart(fig)
+with c2:
+    st.latex(r"""
+    Theta \space of \space Call= \frac{-S_0 \mathcal{N}^{\prime}(d_1) \sigma}{2\sqrt{T}} - rKe^{-rT} \mathcal{N}(d_2) \newline
+    """)
+    st.latex(r"""
+    Theta \space of \space Put= \frac{-S_0 \mathcal{N}^{\prime}(d_1) \sigma}{2\sqrt{T}} + rKe^{-rT} \mathcal{N}(-d_2) \newline
     """)
 
