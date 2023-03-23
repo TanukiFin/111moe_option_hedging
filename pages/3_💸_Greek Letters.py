@@ -9,6 +9,7 @@ import plotly.express as px
 from scipy import log,exp,sqrt,stats
 from scipy.stats import norm
 import warnings
+import random
 from myfunction import bsmodel
 warnings.filterwarnings("ignore")
 
@@ -33,54 +34,30 @@ st.markdown("""
 st.header("Greek Letters")
 st.text("GBM模擬股價，S0 = 50，T=1(1年)，共20步、一步t=0.05\
         \n觀察各期t的option價格、Greek Letters")
-# 參數 ==========================================================================================
-numberOfSims = 1 # number of sims
-mu = 0.1 # drift coefficent
-S0 = 50 # initial stock price
-sigma = 0.3 # volatility
-steps = 20 # number of steps
-T = 1 # time in years
-dt = T/steps # calc each time step
-quantity = -100 # brokerage sales quantity ex. -100=賣100個
-sell_price = 3 
-r=0.05
-
-# Strike Price ================================================================================================
-c1, c2, c3 = st.columns(3)
-with c1:
-    K_A = st.slider("A option K", 30, 70, 50, 1)
-    CP_A = st.radio("Aoption",("Long Call","Long Put","Short Call","Short Put"),label_visibility="hidden")
-with c2:
-    K_B = st.slider("B option K", 30, 70, 48, 1)
-    CP_B = st.radio("Boption",("Long Call","Long Put","Short Call","Short Put"),label_visibility="hidden")
-with c3:
-    K_C = st.slider("C option K", 30, 70, 52, 1)
-    CP_C = st.radio("Coption",("Long Call","Long Put","Short Call","Short Put"),label_visibility="hidden")
-
 
 # 側邊
 with st.sidebar:
-    # A
     K_A = st.slider("Option A: Strike Price", 30, 70, 50, 1)
     CP_A = st.sidebar.selectbox(
     "Option A: Type",
-    ("Long Call","Long Put","Short Call","Short Put") )
+    ("Long Call","Long Put","Short Call","Short Put"), label_visibility ="collapsed" )
     # B
     K_B = st.slider("Option B: Strike Price", 30, 70, 48, 1)
     CP_B = st.sidebar.selectbox(
     "Option B: Type",
-    ("Long Call","Long Put","Short Call","Short Put") )
+    ("Long Call","Long Put","Short Call","Short Put"), label_visibility ="collapsed" )
     # C
     K_C = st.slider("Option C: Strike Price", 30, 70, 52, 1)
     CP_C = st.sidebar.selectbox(
     "Option C: Type",
-    ("Long Call","Long Put","Short Call","Short Put") )
+    ("Long Call","Long Put","Short Call","Short Put"), label_visibility ="collapsed" )
     
 # 打開網頁時，隨機跑一個股價 ==============================================================================
 if 'openweb' not in st.session_state:
     st.session_state.openweb = True
     df_St = bsmodel.get_GBM_St()
     st.session_state.df_St = df_St
+    print("=== START ===")
 
 # 按Simulate St 股價才會變動
 if st.button("Simulate St"):
@@ -89,6 +66,7 @@ if st.button("Simulate St"):
     st.session_state.df_St = df_St # 暫存df
 
 df_price = bsmodel.get_greeks(st.session_state.df_St, K_list=[K_A,K_B,K_C], CP = [CP_A, CP_B, CP_C])   
+
 
 # 股價 & Greek Letters圖 ==================================================================================
 c1, c2 = st.columns(2)
