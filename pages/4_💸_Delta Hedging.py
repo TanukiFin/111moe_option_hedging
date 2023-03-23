@@ -134,13 +134,12 @@ def get_GBM_St():
         df_greek.loc[i] = np.hstack([option[0], option[1], option[2], option[0][1:4]*quantity])      
     
     return pd.concat([df,df_greek],axis=1)
+steps = 20 # number of steps
+T = 1 # time in years
+quantity = -100 # brokerage sales quantity ex. -100=賣100個
+sell_price = 3 
+dt = T/steps # calc each time step
 def get_delta_hedge(df_price):
-    steps = 20 # number of steps
-    T = 1 # time in years
-    quantity = -100 # brokerage sales quantity ex. -100=賣100個
-    sell_price = 3 
-    dt = T/steps # calc each time step
-    
     df_delta = pd.DataFrame(columns=["現貨部位_持有量","現貨部位_增減量","現貨部位_增減成本","現貨部位_利息成本",
                                     "現貨部位_累積成本","A部位_損益","現貨部位_損益","總部位_損益"])
     #df_delta["現貨部位_持有量"] = round( -1 * df_price["A部位總Delta"], 2 )
