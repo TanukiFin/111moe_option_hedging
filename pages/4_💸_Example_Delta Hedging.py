@@ -103,7 +103,14 @@ fig.update_layout(legend=dict(
     xanchor="right",
     x=1
 ))
-st.plotly_chart(fig)
+c1, c2 = st.columns([2,1])
+with c1:
+    st.plotly_chart(fig)
+with c2:
+    st.markdown("**No Hedging**: 不避險的損益")
+    st.markdown("**Delta1**: 每期避險")
+    st.markdown("**Delta5**: 每五期避險(week0,week5,week10...)")
+    st.markdown("**Delta20**: 僅第一期避險")
 
 # 圖: Delta與現貨應持有量的關係
 df_spot = pd.DataFrame()
