@@ -36,9 +36,9 @@ with c1:
     "**T**",
     ( 20/52, 1) )
     CP_A = st.selectbox(
-    "Type",
+    "Type: 券商要賣Call還是賣Put",
     ("Short Call","Short Put") )
-    sell_price = st.number_input("Sell Price",min_value=1,max_value=20,value=3)
+    sell_price = st.number_input("Sell Price: 券商賣這個選擇權的售價，應高於理論價值(相當於成本)，這樣才有利潤",min_value=1,max_value=20,value=3)
 with c2:
     st.metric(label="option value at t=0", value=round(bsmodel.call(S0,K_A,r,sigma,T).price,2))
 K_B=50 ; K_C=50
