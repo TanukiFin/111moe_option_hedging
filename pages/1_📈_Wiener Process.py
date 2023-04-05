@@ -6,6 +6,9 @@ import time
 import datetime as dt
 import matplotlib.pyplot as plt
 import plotly.express as px
+import warnings
+warnings.filterwarnings("ignore")
+
 
 st.set_page_config(
     page_title="Wiener Process",

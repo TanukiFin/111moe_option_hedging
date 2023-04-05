@@ -6,6 +6,8 @@ import time
 import datetime as dt
 import matplotlib.pyplot as plt
 import plotly.express as px
+import warnings
+warnings.filterwarnings("ignore")
 
 api_key="12a476fe-a758-47da-bd31-4c4942430f23"
 api_key="d8ae61a9-6d58-491f-9128-7fecaddf0324"

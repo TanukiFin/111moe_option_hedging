@@ -11,30 +11,17 @@ st.set_page_config(
     page_icon="👋",
 )
 
-# no footer
-st.markdown("""
-<style>
-.css-9s5bis.edgvbvh3
-{
-    visibility: hidden;
-}
-.css-h5rgaw.egzxvld1
-{
-    visibility: hidden;
-}
-</style>
-""",unsafe_allow_html=True)
 
 
 # 內文
-st.header("Option")
+st.header("Option Greeks Hedging")
 st.text("still building...")
 
 
 # 頁尾
 c1, c2 = st.columns(2)
 with c1:
-    st.info('**Power by: [@tanuki](https://twitter.com/g_dalice)**', icon="💡")
+    st.info('**Power by: NTUST Finance**', icon="💡")
 with c2:
     st.info('**GitHub: @tanukifin**', icon="💻")
 
