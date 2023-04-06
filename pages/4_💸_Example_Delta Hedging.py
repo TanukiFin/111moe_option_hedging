@@ -25,25 +25,25 @@ S0 = 49
 
 st.header("Delta hedging")
 
+st.text("券商賣100個單位的選擇權，參數如下")
 c1, c2 = st.columns(2)
 with c1:
-    st.text("券商賣100個單位的選擇權，參數如下")
     st.markdown("**S0 =** $49")
-    K_A = st.slider("**K =**", 40, 60, 50, 2 )
-    r = st.slider("**r =**", 0.0, 0.1, 0.05, 0.01 )
-    sigma = st.slider("**sigma =**", 0.1, 0.5, 0.2, 0.05 ) # volatility
+    K_A = st.number_input("**K =**",min_value=40,max_value=60,value=50)
+    r = st.number_input("**r =**",min_value=0.0,max_value=0.1,value=0.05)
+    sigma = st.number_input("**sigma =**",min_value=0.1,max_value=0.5,value=0.2)
     T = st.selectbox(
     "**T**",
-    ( 20/52, 1) )
+    ( round(20/52,4), 1) )
+    
+with c2:
     CP_A = st.selectbox(
     "Type: 券商要賣Call還是賣Put",
     ("Short Call","Short Put") )
     sell_price = st.number_input("Sell Price: 券商賣這個選擇權的售價，應高於理論價值(相當於成本)，這樣才有利潤",min_value=1,max_value=20,value=3)
-with c2:
     st.metric(label="option value at t=0", value=round(bsmodel.call(S0,K_A,r,sigma,T).price,2))
 K_B=50 ; K_C=50
 CP_B="Call" ; CP_C="Call" 
-
 
 
 # 側邊
@@ -124,12 +124,9 @@ fig.update_layout(legend=dict( orientation="h",
     yanchor="bottom", y=1.02,
     xanchor="right", x=1))
 #st.plotly_chart(fig)
-st.markdown("""
-通常我們需令投資組合(portfolio)對某項因子的敏感度為 0，表示投資組合對該項
-因子進入 neutral 狀態，亦即投資組合價值不受該因子的些許變化所影響。例如，
-delta 為投資組合對某資產價格的敏感度(微分)，若投資組合價值不受該資產價格
-影響，則稱該 portfolio 為 delta-neutral，亦即整個 portfolio 的總 delta = 0。
-""")
+
+st.info(f"""目前參數:　　:red[S0]={S0},　　:red[K]={K_A},　　:red[r]={r},　　:red[T]={round(T,2)},　　:red[sigma]={sigma} 
+        \n 　　　　　　:red[type]={CP_A},　　:red[sell price]={sell_price}""")
 
 # 圖: Delta Hedging 各部位損益
 fig = px.line(df_delta.round(2), x="第t期", y=["A部位_損益","現貨部位_損益","總部位_損益"], title="Delta Hedging 各部位損益(每期避險)", \
