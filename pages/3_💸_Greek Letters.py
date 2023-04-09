@@ -70,10 +70,10 @@ df_price = bsmodel.get_greeks(st.session_state.df_St, K_list=[K_A,K_B,K_C], CP =
 # 股價 & Greek Letters圖 ==================================================================================
 c1, c2 = st.columns(2)
 with c1:
-    fig = px.line(df_price.round(2), x="第t期", y="St", title="Stock Price",height=300, width=300, template="plotly_white").update_layout(showlegend=False)
+    fig = px.line(df_price.round(2), x="t", y="St", title="Stock Price",height=300, width=300, template="plotly_white").update_layout(showlegend=False)
     st.plotly_chart(fig)
 with c2:
-    fig = px.line(df_price.round(2), x="第t期", y=["A_Price","B_Price","C_Price"], title="Option Price", height=300, width=500, template="plotly_white")#.update_layout(showlegend=False)
+    fig = px.line(df_price.round(2), x="t", y=["A_Price","B_Price","C_Price"], title="Option Price", height=300, width=500, template="plotly_white")#.update_layout(showlegend=False)
     fig.update_layout(legend=dict( orientation="h",
     yanchor="bottom", y=1.02,
     xanchor="right", x=1))
@@ -82,7 +82,7 @@ with c2:
 # Delta
 c1, c2 = st.columns([1,1])
 with c1:
-    fig = px.line(df_price.round(4), x="第t期", y=["A_Delta","B_Delta","C_Delta"], title="Option Delta", labels={'value': "Delta"}, height=300, width=400, template="plotly_white")#.update_layout(showlegend=False)
+    fig = px.line(df_price.round(4), x="t", y=["A_Delta","B_Delta","C_Delta"], title="Option Delta", labels={'value': "Delta"}, height=300, width=400, template="plotly_white")#.update_layout(showlegend=False)
     fig.update_layout(legend=dict( orientation="h",
     yanchor="bottom", y=1.02,
     xanchor="right", x=1))
@@ -97,7 +97,7 @@ with c2:
 # Gamma
 c1, c2 = st.columns([1,1])
 with c1:
-    fig = px.line(df_price.round(4), x="第t期", y=["A_Gamma","B_Gamma","C_Gamma"], title="Option Gamma", labels={'value': "Gamma"}, height=300, width=400, template="plotly_white")#.update_layout(showlegend=False)
+    fig = px.line(df_price.round(4), x="t", y=["A_Gamma","B_Gamma","C_Gamma"], title="Option Gamma", labels={'value': "Gamma"}, height=300, width=400, template="plotly_white")#.update_layout(showlegend=False)
     fig.update_layout(legend=dict( orientation="h",
     yanchor="bottom", y=1.02,
     xanchor="right", x=1))
@@ -109,7 +109,7 @@ with c2:
 # Vega
 c1, c2 = st.columns([1,1])
 with c1:
-    fig = px.line(df_price.round(4), x="第t期", y=["A_Vega","B_Vega","C_Vega"], title="Option Vega", labels={'value': "Vega"}, height=300, width=400, template="plotly_white")#.update_layout(showlegend=False)
+    fig = px.line(df_price.round(4), x="t", y=["A_Vega","B_Vega","C_Vega"], title="Option Vega", labels={'value': "Vega"}, height=300, width=400, template="plotly_white")#.update_layout(showlegend=False)
     fig.update_layout(legend=dict( orientation="h",
     yanchor="bottom", y=1.02,
     xanchor="right", x=1))
@@ -121,7 +121,7 @@ with c2:
 # Theta
 c1, c2 = st.columns([1,1])
 with c1:
-    fig = px.line(df_price.round(4), x="第t期", y=["A_Theta","B_Theta","C_Theta"], title="Option Theta", labels={'value': "Theta"}, height=300, width=400, template="plotly_white")#.update_layout(showlegend=False)
+    fig = px.line(df_price.round(4), x="t", y=["A_Theta","B_Theta","C_Theta"], title="Option Theta", labels={'value': "Theta"}, height=300, width=400, template="plotly_white")#.update_layout(showlegend=False)
     fig.update_layout(legend=dict( orientation="h",
     yanchor="bottom", y=1.02,
     xanchor="right", x=1))

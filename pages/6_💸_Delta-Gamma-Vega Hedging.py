@@ -65,10 +65,10 @@ df_price = bsmodel.get_greeks(st.session_state.df_St, K_list=[K_A,K_B,K_C], CP =
 # 股價 & Greek Letters圖 ==================================================================================
 c1, c2 = st.columns(2)
 with c1:
-    fig = px.line(df_price.round(2), x="第t期", y="St", title="Stock Price",height=300, width=400, template="plotly_white").update_layout(showlegend=False)
+    fig = px.line(df_price.round(2), x="t", y="St", title="Stock Price",height=300, width=400, template="plotly_white").update_layout(showlegend=False)
     st.plotly_chart(fig)
 with c2:
-    fig = px.line(df_price.round(2), x="第t期", y=["A_Price","B_Price","C_Price"], title="Option Price", 
+    fig = px.line(df_price.round(2), x="t", y=["A_Price","B_Price","C_Price"], title="Option Price", 
                   height=300, width=400, template="plotly_white")#.update_layout(showlegend=False)
     fig.update_layout(legend=dict( orientation="h",
                         yanchor="bottom", y=1.02,
@@ -80,12 +80,12 @@ df_delta = bsmodel.get_delta_hedge(df_price)
 df_gamma = bsmodel.get_gamma_hedge(df_price)
 df_vega = bsmodel.get_vega_hedge(df_price)
 
-df_all_hedge = pd.DataFrame(columns=["第t期","No Hedging","Delta Hedging","Delta-Gamma Hedging"])
-df_all_hedge["第t期"] = df_delta["第t期"]
-df_all_hedge["No Hedging"] = df_delta["A部位_損益"]
-df_all_hedge["Delta Hedging"] = df_delta["總部位_損益"]
-df_all_hedge["Delta-Gamma Hedging"] = df_gamma["總部位_損益"]
-df_all_hedge["Delta-Gamma-Vega Hedging"] = df_vega["總部位_損益"]
+df_all_hedge = pd.DataFrame(columns=["t","No Hedging","Delta Hedging","Delta-Gamma Hedging"])
+df_all_hedge["t"] = df_delta["t"]
+df_all_hedge["No Hedging"] = df_delta["Option_Profit"]
+df_all_hedge["Delta Hedging"] = df_delta["Total_Profit"]
+df_all_hedge["Delta-Gamma Hedging"] = df_gamma["Total_Profit"]
+df_all_hedge["Delta-Gamma-Vega Hedging"] = df_vega["Total_Profit"]
 
 hedge_list = []
 c1, c2, c3, c4 = st.columns([1,1,1.5,1.5])
@@ -104,9 +104,9 @@ with c4:
 
 
 
-#fig = px.line(df_all_hedge.round(2), x="第t期", y=["No Hedging","Delta Hedging","Delta-Gamma Hedging","Delta-Gamma-Vega Hedging"], title="Delta-Gamma-Vega Hedging", \
+#fig = px.line(df_all_hedge.round(2), x="t", y=["No Hedging","Delta Hedging","Delta-Gamma Hedging","Delta-Gamma-Vega Hedging"], title="Delta-Gamma-Vega Hedging", \
 #               labels={"value":"profit"},height=300, width=500, template="plotly_white") 
-fig = px.line(df_all_hedge.round(2), x="第t期", y=hedge_list, title="Delta-Gamma-Vega Hedging", \
+fig = px.line(df_all_hedge.round(2), x="t", y=hedge_list, title="Delta-Gamma-Vega Hedging", \
                labels={"value":"profit"},height=400, width=700, template="plotly_white") 
 
 st.plotly_chart(fig)
