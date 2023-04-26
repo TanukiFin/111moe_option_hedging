@@ -71,14 +71,16 @@ df_price = bsmodel.get_greeks(st.session_state.df_St, K_list=[K_A,K_B,K_C], CP =
 c1, c2 = st.columns(2)
 with c1:
     fig = px.line(df_price.round(2), x="t", y="St", title="Stock Price",height=300, width=300, template="plotly_white").update_layout(showlegend=False)
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 with c2:
     fig = px.line(df_price.round(2), x="t", y=["A_Price","B_Price","C_Price"], title="Option Price", height=300, width=500, template="plotly_white")#.update_layout(showlegend=False)
     fig.update_layout(legend=dict( orientation="h",
     yanchor="bottom", y=1.02,
     xanchor="right", x=1))
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
+# Greek Letters ==================================================================================
+st.header("Black–Scholes–Merton Pricing formulas")
 # Delta
 c1, c2 = st.columns([1,1])
 with c1:
@@ -86,13 +88,13 @@ with c1:
     fig.update_layout(legend=dict( orientation="h",
     yanchor="bottom", y=1.02,
     xanchor="right", x=1))
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 with c2:
     st.latex(r"""
-    Delta \space of \space Call=\mathcal{N}(d_1) 
+    Delta \space of \space Call={N}(d_1) 
     """)
     st.latex(r"""
-    Delta \space of \space Put=\mathcal{N}(d_1)-1
+    Delta \space of \space Put={N}(d_1)-1
     """)
 # Gamma
 c1, c2 = st.columns([1,1])
@@ -101,10 +103,10 @@ with c1:
     fig.update_layout(legend=dict( orientation="h",
     yanchor="bottom", y=1.02,
     xanchor="right", x=1))
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 with c2:
     st.latex(r"""
-    Gamma= \frac{\mathcal{N}^{\prime}(d_1)}{S_0 \sigma \sqrt{T}}
+    Gamma= \frac{{N}^{\prime}(d_1)}{S_0 \sigma \sqrt{T}}
     """)
 # Vega
 c1, c2 = st.columns([1,1])
@@ -113,10 +115,10 @@ with c1:
     fig.update_layout(legend=dict( orientation="h",
     yanchor="bottom", y=1.02,
     xanchor="right", x=1))
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 with c2:
     st.latex(r"""
-    Vega= S_0 \sqrt{T} \mathcal{N}(d_1)
+    Vega= S_0 \sqrt{T} {N}(d_1)
     """)
 # Theta
 c1, c2 = st.columns([1,1])
@@ -125,13 +127,37 @@ with c1:
     fig.update_layout(legend=dict( orientation="h",
     yanchor="bottom", y=1.02,
     xanchor="right", x=1))
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 with c2:
     st.latex(r"""
-    Theta \space of \space Call= \frac{-S_0 \mathcal{N}^{\prime}(d_1) \sigma}{2\sqrt{T}} - rKe^{-rT} \mathcal{N}(d_2) \newline
+    Theta \space of \space Call= \frac{-S_0 N^{\prime}(d_1) \sigma}{2\sqrt{T}} - rKe^{-rT} {N}(d_2) \newline
     """)
     st.latex(r"""
-    Theta \space of \space Put= \frac{-S_0 \mathcal{N}^{\prime}(d_1) \sigma}{2\sqrt{T}} + rKe^{-rT} \mathcal{N}(-d_2) \newline
+    Theta \space of \space Put= \frac{-S_0 N^{\prime}(d_1) \sigma}{2\sqrt{T}} + rKe^{-rT} {N}(-d_2) \newline
     """)
 
 
+# BS price ==================================================================================
+st.header("Black–Scholes–Merton Pricing formulas")
+st.latex(r"""
+    c = S_0 N(d_1) - Ke^{-rT} N(d_2)
+""")
+st.latex(r"""
+    p = Ke^{-rT} N(-d_2) - S_0 N(-d_1)
+""")
+st.latex(r"""
+    d_1 = \frac{ ln( \frac{S_0}{K} ) + (r+ \frac{\sigma}{2}) T }{ \sigma \sqrt{T} }
+""")
+st.latex(r"""
+    d_2 = \frac{ ln( \frac{S_0}{K} ) + (r- \frac{\sigma}{2}) T }{ \sigma \sqrt{T} }
+    = d_1 - \sigma \sqrt{T}
+""")
+st.latex(r"""
+    N^{\prime}(x) = \frac{1}{ \sqrt{2 \pi} } e^{-x^2/2}
+""")
+
+# Portfolio value  ==================================================================================
+st.header("Portfolio value")
+st.latex(r"""
+    \Delta \Pi = \theta {\Delta t} + \frac{1}{2} \Gamma \Delta S^2 
+""")

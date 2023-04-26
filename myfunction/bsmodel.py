@@ -164,7 +164,7 @@ def get_delta_hedge(df_price, r=0.05, sigma=0.3, T=1, sell_price=3):
     steps = len(df_price)-1
     dt = T/steps # calc each time step
     df_delta = pd.DataFrame(columns=["Holding_shares","Shares_purchased","Cost_of_Shares_purchased","Interest_cost ",
-                                    "Cumulative_cost_including_interest","Option_Profit","HedgingSpot_Profit","Total_Profit"])
+                                    "Cumulative_cost_including_interest","Option_Profit","HedgingStock_Profit","Total_Profit"])
     df_delta["Holding_shares"] = round( df_price["A_總Delta"], 1 )
     df_delta["Shares_purchased"] = df_delta["Holding_shares"] - df_delta["Holding_shares"].shift()
     df_delta["Shares_purchased"].iloc[0] = df_delta["Holding_shares"].iloc[0]
@@ -179,8 +179,8 @@ def get_delta_hedge(df_price, r=0.05, sigma=0.3, T=1, sell_price=3):
                                                         + df_delta["Cost_of_Shares_purchased"].iloc[step] \
                                                         + df_delta["Interest_cost "].iloc[step]
     df_delta["Option_Profit"] = ( sell_price*exp(r*df_price["t"]) -  df_price["A_Price"] ) * quantity
-    df_delta["HedgingSpot_Profit"] =  df_delta["Holding_shares"] * df_price["St"] - df_delta["Cumulative_cost_including_interest"]
-    df_delta["Total_Profit"] =  df_delta["Option_Profit"] + df_delta["HedgingSpot_Profit"]
+    df_delta["HedgingStock_Profit"] =  df_delta["Holding_shares"] * df_price["St"] - df_delta["Cumulative_cost_including_interest"]
+    df_delta["Total_Profit"] =  df_delta["Option_Profit"] + df_delta["HedgingStock_Profit"]
     df_delta = pd.concat([df_price["t"],df_delta.astype(float)],axis=1)
     return df_delta.round(2)
 
@@ -190,7 +190,7 @@ def get_gamma_hedge(df_price, r=0.05, sigma=0.3, T=1, sell_price=3):
     # B部位
     df_gamma = pd.DataFrame(columns=["B部位_持有量","B部位_增減量","B部位_增減成本","B部位_利息成本","B部位_累積成本","持有B後的_總Delta",
                                      "Holding_shares","Shares_purchased","Cost_of_Shares_purchased","Interest_cost ","Cumulative_cost_including_interest",
-                                     "Option_Profit","B部位_損益","HedgingSpot_Profit","Total_Profit"])
+                                     "Option_Profit","B部位_損益","HedgingStock_Profit","Total_Profit"])
     #df_gamma["B部位_持有量"] = round( -1 * df_price["A部位總Gamma"] / df_price["B選擇權Gamma"], 4)
     df_gamma["B部位_持有量"] =  -1 * df_price["A_總Gamma"] / df_price["B_Gamma"]
     df_gamma["B部位_持有量"][df_gamma["B部位_持有量"].isnull()]=0
@@ -224,8 +224,8 @@ def get_gamma_hedge(df_price, r=0.05, sigma=0.3, T=1, sell_price=3):
                                                         + df_gamma["Interest_cost "].iloc[step]
     df_gamma["Option_Profit"] = ( sell_price*exp(r*df_price["t"]/T) -  df_price["A_Price"] ) * quantity
     df_gamma["B部位_損益"] = df_gamma["B部位_持有量"] * df_price["B_Price"] - df_gamma["B部位_累積成本"]
-    df_gamma["HedgingSpot_Profit"] =  df_gamma["Holding_shares"] * df_price["St"] - df_gamma["Cumulative_cost_including_interest"]
-    df_gamma["Total_Profit"] =  df_gamma["Option_Profit"] + df_gamma["B部位_損益"] + df_gamma["HedgingSpot_Profit"]
+    df_gamma["HedgingStock_Profit"] =  df_gamma["Holding_shares"] * df_price["St"] - df_gamma["Cumulative_cost_including_interest"]
+    df_gamma["Total_Profit"] =  df_gamma["Option_Profit"] + df_gamma["B部位_損益"] + df_gamma["HedgingStock_Profit"]
     df_gamma = pd.concat([df_price["t"],df_gamma.astype(float)],axis=1)
     return df_gamma.round(2)
 
@@ -236,7 +236,7 @@ def get_vega_hedge(df_price, r=0.05, sigma=0.3, T=1, sell_price=3):
     df_vega = pd.DataFrame(columns=["B部位_持有量","B部位_增減量","B部位_增減成本","B部位_利息成本","B部位_累積成本",
                                     "C部位_持有量","C部位_增減量","C部位_增減成本","C部位_利息成本","C部位_累積成本",
                                     "Holding_shares","Shares_purchased","Cost_of_Shares_purchased","Interest_cost ","Cumulative_cost_including_interest",
-                                    "Option_Profit","B部位_損益","C部位_損益","HedgingSpot_Profit","Total_Profit"])
+                                    "Option_Profit","B部位_損益","C部位_損益","HedgingStock_Profit","Total_Profit"])
     for step in range(0, len(df_price)): #0~20
         try:
             # Delta、Gamma、Vega
@@ -302,8 +302,8 @@ def get_vega_hedge(df_price, r=0.05, sigma=0.3, T=1, sell_price=3):
     df_vega["Option_Profit"] = ( sell_price*exp(r*df_price["t"]/T) -  df_price["A_Price"] ) * quantity
     df_vega["B部位_損益"] = df_vega["B部位_持有量"] * df_price["B_Price"] - df_vega["B部位_累積成本"]
     df_vega["C部位_損益"] = df_vega["C部位_持有量"] * df_price["C_Price"] - df_vega["C部位_累積成本"]
-    df_vega["HedgingSpot_Profit"] =  df_vega["Holding_shares"] * df_price["St"] - df_vega["Cumulative_cost_including_interest"]
-    df_vega["Total_Profit"] =  df_vega["Option_Profit"] + df_vega["B部位_損益"] + df_vega["C部位_損益"] + df_vega["HedgingSpot_Profit"]
+    df_vega["HedgingStock_Profit"] =  df_vega["Holding_shares"] * df_price["St"] - df_vega["Cumulative_cost_including_interest"]
+    df_vega["Total_Profit"] =  df_vega["Option_Profit"] + df_vega["B部位_損益"] + df_vega["C部位_損益"] + df_vega["HedgingStock_Profit"]
     df_vega = pd.concat([df_price["t"], df_vega.astype(float)],axis=1)
 
     return df_vega.round(2)
@@ -313,7 +313,7 @@ def get_delta_hedge_2week(df_price, freq=2, r=0.05, sigma=0.3, T=1, sell_price=3
     steps = len(df_price)-1
     dt = T/steps # calc each time step
     df_delta = pd.DataFrame(columns=["Holding_shares","Shares_purchased","Cost_of_Shares_purchased","Interest_cost ",
-                                    "Cumulative_cost_including_interest","Option_Profit","HedgingSpot_Profit","Total_Profit"])
+                                    "Cumulative_cost_including_interest","Option_Profit","HedgingStock_Profit","Total_Profit"])
     for step in range(0, len(df_price)): #0~20
             if step%freq == 0:  # 0,2,4...
                 df_delta.at[step,"Holding_shares"] = round(df_price.at[step,"A_總Delta"], 1)
@@ -333,8 +333,8 @@ def get_delta_hedge_2week(df_price, freq=2, r=0.05, sigma=0.3, T=1, sell_price=3
                                                         + df_delta["Cost_of_Shares_purchased"].iloc[step] \
                                                         + df_delta["Interest_cost "].iloc[step]
     df_delta["Option_Profit"] = ( sell_price*exp(r*df_price["t"]) -  df_price["A_Price"] ) * quantity
-    df_delta["HedgingSpot_Profit"] =  df_delta["Holding_shares"] * df_price["St"] - df_delta["Cumulative_cost_including_interest"]
-    df_delta["Total_Profit"] =  df_delta["Option_Profit"] + df_delta["HedgingSpot_Profit"]
+    df_delta["HedgingStock_Profit"] =  df_delta["Holding_shares"] * df_price["St"] - df_delta["Cumulative_cost_including_interest"]
+    df_delta["Total_Profit"] =  df_delta["Option_Profit"] + df_delta["HedgingStock_Profit"]
     df_delta = pd.concat([df_price["t"],df_delta.astype(float)],axis=1)
     return df_delta.round(2)
 
