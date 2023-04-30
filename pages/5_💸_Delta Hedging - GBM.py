@@ -99,7 +99,7 @@ df_all_hedge["Delta10"] = df_delta10["Total_Profit"]
 df_all_hedge["Delta20"] = df_delta20["Total_Profit"]
 
 # ===============================================================
-tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["📈 Chart","🗃 每期避險", "🗃 每5期避險", "🗃 靜態避險", "🗃 Greek Letters"])
 c1, c2 = tab1.columns([2,1], gap="large")
 with c2:
     st.markdown("Variable顯示")
@@ -110,7 +110,7 @@ with c2:
         if st.checkbox(cname[count]+cname2[count],value=True):
             hedge_list.append(cname[count])
 # 圖: 全部避險損益
-fig = px.line(df_all_hedge.round(2), x="t", y=hedge_list, title="Delta Hedging", \
+fig = px.line(df_all_hedge.round(2), x="t", y=hedge_list, title="Delta Hedging避險損益", \
                labels={"value":"profit"},height=400, width=600, template="plotly_white") 
 fig.update_layout(legend=dict(
     orientation="h",
@@ -122,7 +122,38 @@ fig.update_layout(legend=dict(
 with c1:
     st.plotly_chart(fig, use_container_width=True)
 
+# === 各類避險的表格 ===
+if CP_A == "Short Call":
+    if df_price["St"].iloc[-1] > K_A: # Call履約
+        cost = df_delta["Cumulative_cost_including_interest"].iloc[-1] - K_A*quantity
+        cost5 = df_delta5["Cumulative_cost_including_interest"].iloc[-1] - K_A*quantity
+        cost20 = df_delta20["Cumulative_cost_including_interest"].iloc[-1] - K_A*quantity
+    elif df_price["St"].iloc[-1] < K_A: # Call不履約
+        cost = df_delta["Cumulative_cost_including_interest"].iloc[-1]
+        cost5 = df_delta5["Cumulative_cost_including_interest"].iloc[-1]
+        cost20 = df_delta20["Cumulative_cost_including_interest"].iloc[-1]
+elif CP_A == "Short Put":
+    if df_price["St"].iloc[-1] < K_A: # Put履約
+        cost = df_delta["Cumulative_cost_including_interest"].iloc[-1]
+        cost5 = df_delta5["Cumulative_cost_including_interest"].iloc[-1] - K_A*quantity
+        cost20 = df_delta20["Cumulative_cost_including_interest"].iloc[-1] - K_A*quantity
+    elif df_price["St"].iloc[-1] > K_A: # Put不履約
+        cost = df_delta["Cumulative_cost_including_interest"].iloc[-1]
+        cost5 = df_delta5["Cumulative_cost_including_interest"].iloc[-1]
+        cost20 = df_delta20["Cumulative_cost_including_interest"].iloc[-1]
+
+tab2.markdown(f"""避險成本={round(cost,2)}""")
 tab2.dataframe(df_delta)
+tab3.markdown(f"""避險成本={round(cost5,2)}""")
+tab3.dataframe(df_delta5)
+tab4.markdown(f"""避險成本={round(cost20,2)}""")
+tab4.dataframe(df_delta20)
+tab5.dataframe(df_price[["t","St","A_Price","A_Delta","A_Gamma"
+                       ,"B_Price","B_Delta","B_Gamma" ]]) #[["t","St","A_Price","A_Delta","A_Gamma","A_Vega","A_Theta"]]
+
+
+
+
 
 # ===============================================================
 tab1, tab2, tab3 = st.tabs(["🗃 Delta與現貨應持有量的關係", "🗃 各部位損益","🗃 不同頻率的現貨持有量"])
