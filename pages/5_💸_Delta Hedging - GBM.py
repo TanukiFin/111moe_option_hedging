@@ -15,22 +15,24 @@ from myfunction import bsmodel
 import warnings
 warnings.filterwarnings("ignore")
 
+# === 預設參數 ===
 st.set_page_config(
     page_title="Delta Hedging - GBM",
     page_icon="📈",
     layout="wide",
 )
-
+st.header("Delta Hedging - GBM")
 S0 = 50 # initial stock price
+quantity = 100 # brokerage sales quantity ex. 100=賣100個
 
-# 打開網頁時，隨機跑一個股價 ==============================================================================
+# === 打開網頁時，隨機跑一個股價 ===
 if 'openweb' not in st.session_state:
     st.session_state.openweb = True
     df_St = bsmodel.get_GBM_St()
     st.session_state.df_St = df_St
     print("=== START ===")
 
-# 側邊 ==============================================================================
+# === 側邊 ===
 with st.sidebar:
     st.markdown("**GBM模擬股價的參數**")
     steps_input = st.number_input("**steps =**", min_value=10,max_value=70,value=20)
@@ -43,10 +45,7 @@ with st.sidebar:
         st.session_state.df_St = df_St # 暫存df
     st.markdown("此頁的股價產生方式為根據GBM隨機產生，每次點選網頁左側的[Simulate St]按鈕，即會根據所選參數產生新的隨機股價。")
 
-# ==============================================================================
-
-
-st.header("Delta Hedging - GBM")
+# === Input區 ===
 st.markdown("券商賣100個單位的選擇權，參數可調整的僅有履約價(K)、Type、Sell Price，其餘皆跟隨網頁左側的GBM參數。")
 st.markdown("**S0 =** $50")
 c1, c2 = st.columns(2, gap="large")
@@ -69,7 +68,7 @@ st.info(f"""目前參數:　　:red[S0]={S0},　　:red[K]={K_A},　　:red[r]={
 
 df_price = bsmodel.get_greeks(st.session_state.df_St, K_list=[K_A,K_B,K_C], CP = [CP_A, CP_B, CP_C])   
 
-# 股價 & Greek Letters圖 ==================================================================================
+# === 股價 & Greek Letters圖 ===
 c1, c2 = st.columns(2, gap="large")
 with c1:
     tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data"])
@@ -83,7 +82,6 @@ with c2:
     tab1.plotly_chart(fig, use_container_width=True)
     tab2.write(df_price[["t","A_Price"]].round(2).rename({"A_Price":"Option Price"},axis=1))
 
-st.markdown("---")
 # 算損益 ==================================================================================
 df_delta = bsmodel.get_delta_hedge(df_price, r_input, sigma_input, T_input, sell_price)
 df_delta2 = bsmodel.get_delta_hedge_2week(df_price, freq=2, r=r_input, sigma=sigma_input, T=T_input, sell_price=sell_price)
@@ -100,7 +98,9 @@ df_all_hedge["Delta5"] = df_delta5["Total_Profit"]
 df_all_hedge["Delta10"] = df_delta10["Total_Profit"]
 df_all_hedge["Delta20"] = df_delta20["Total_Profit"]
 
-c1, c2 = st.columns([2,1], gap="large")
+# ===============================================================
+tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data"])
+c1, c2 = tab1.columns([2,1], gap="large")
 with c2:
     st.markdown("Variable顯示")
     hedge_list = []
@@ -109,7 +109,6 @@ with c2:
     for count in range(len(cname)):
         if st.checkbox(cname[count]+cname2[count],value=True):
             hedge_list.append(cname[count])
-
 # 圖: 全部避險損益
 fig = px.line(df_all_hedge.round(2), x="t", y=hedge_list, title="Delta Hedging", \
                labels={"value":"profit"},height=400, width=600, template="plotly_white") 
@@ -123,7 +122,11 @@ fig.update_layout(legend=dict(
 with c1:
     st.plotly_chart(fig, use_container_width=True)
 
-# 圖: Delta與現貨應持有量的關係
+tab2.dataframe(df_delta)
+
+# ===============================================================
+tab1, tab2, tab3 = st.tabs(["🗃 Delta與現貨應持有量的關係", "🗃 各部位損益","🗃 不同頻率的現貨持有量"])
+# 圖1: Delta與現貨應持有量的關係
 df_spot = pd.DataFrame()
 df_spot["t"] = df_delta["t"]
 df_spot["A部位Delta"] = df_price["A_總Delta"]
@@ -134,17 +137,17 @@ fig = px.line(df_spot, x="t", y=["A部位Delta","避險部位_現貨持有量","
 fig.update_layout(legend=dict( orientation="h",
     yanchor="bottom", y=1.02,
     xanchor="right", x=1))
-st.plotly_chart(fig)
+tab1.plotly_chart(fig)
 
-# 圖: Delta Hedging 各部位損益
+# 圖2: Delta Hedging 各部位損益
 fig = px.line(df_delta.round(2), x="t", y=["Option_Profit","HedgingStock_Profit","Total_Profit"], title="Delta Hedging 各部位損益(每期避險)", \
                labels={"value":"profit"},height=400, width=600, template="plotly_white") 
 fig.update_layout(legend=dict( orientation="h",
     yanchor="bottom", y=1.02,
     xanchor="right", x=1))
-st.plotly_chart(fig)
+tab2.plotly_chart(fig)
 
-# 圖: Delta Hedging 不同頻率的現貨持有量
+# 圖3: Delta Hedging 不同頻率的現貨持有量
 df_spot = pd.DataFrame()
 df_spot["t"] = df_delta["t"]
 df_spot["Delta1"] = df_delta["Holding_shares"]
@@ -157,6 +160,5 @@ fig = px.line(df_spot, x="t", y=cname[1:] , title="Delta Hedging 不同頻率的
 fig.update_layout(legend=dict( orientation="h",
     yanchor="bottom", y=1.02,
     xanchor="right", x=1))
-st.plotly_chart(fig)
-
-st.dataframe(df_delta)
+tab3.plotly_chart(fig)
+# ===============================================================

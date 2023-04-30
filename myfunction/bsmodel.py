@@ -1,11 +1,17 @@
-'''
-call(self,S,K,r,sigma,T)
-get_GBM_St()
-get_greeks(df_St, K_list, CP)
-get_delta_hedge(df_price)
-get_gamma_hedge(df_price)
-get_vega_hedge(df_price) 
-'''
+"""
+=== Calculate Option Value, Greeks ===
+1. call(self,S,K,r,sigma,T)
+2. put(self,S,K,r,sigma,T)
+3. get_greeks(df_St, K_list, CP, r=0.05, sigma=0.3, T=1, steps=20)
+=== Hedging ===
+1. get_GBM_St(steps=20, r=0.05, sigma=0.3, T=1)
+2. get_default_St(St_sce, r=0.05, sigma=0.3, T=1, steps=20)
+=== Hedging ===
+1. get_delta_hedge(df_price, r=0.05, sigma=0.3, T=1, sell_price=3)
+2. get_delta_hedge_2week(df_price, freq=2, r=0.05, sigma=0.3, T=1, sell_price=3)
+3. get_gamma_hedge(df_price, r=0.05, sigma=0.3, T=1, sell_price=3)
+4. get_vega_hedge(df_price, r=0.05, sigma=0.3, T=1, sell_price=3)
+"""
 
 import streamlit as st
 import requests
@@ -20,7 +26,7 @@ from scipy.stats import norm
 import warnings
 warnings.filterwarnings("ignore")
 
-# 參數 ==========================================================================================
+# === 參數 ===
 numberOfSims = 1 # number of sims
 mu = 0.1 # drift coefficent
 S0 = 50 # initial stock price
@@ -32,15 +38,13 @@ sell_price = 8
 r=0.05
 '''
 
-# function ======================================================================
+# === Calculate Option Value, Greeks ===
 def hello():
     return "HELLO"
 def d1(S,K,r,sigma,T):
     return ((np.log(S/K) + (r + (sigma**2) / 2) * T)) / (sigma * np.sqrt(T))
 def d2(S,K,r,sigma,T):
     return d1(S,K,r,sigma,T) - sigma * np.sqrt(T)
-
-
 class call:
     def callprice(self,S,K,r,sigma,T):
         return norm.cdf(d1(S,K,r,sigma,T)) * S - norm.cdf(d2(S,K,r,sigma,T)) * K * np.exp(-r*T)
@@ -69,7 +73,6 @@ class call:
         self.vega = self.callvega(S,K,r,sigma,T)
         self.theta = self.calltheta(S,K,r,sigma,T)   
         self.greek = np.array([self.delta,self.gamma,self.vega,self.theta])
-
 class put:
     def putprice(self, S, K, r, sigma, T):
         return norm.cdf(-d2(S,K,r,sigma,T)) * K * np.exp(-r * T) - norm.cdf(-d1(S,K,r,sigma,T)) * S
@@ -98,42 +101,6 @@ class put:
         self.vega = self.putvega(S,K,r,sigma,T)
         self.theta = self.puttheta(S,K,r,sigma,T)
         self.greek = np.array([self.delta,self.gamma,self.vega,self.theta])
-
-def get_GBM_St(steps=20, r=0.05, sigma=0.3, T=1):
-    dt = T/steps # calc each time step
-    
-    St = np.exp(
-        (mu - sigma ** 2 / 2) * dt
-        + sigma * np.random.normal(0, np.sqrt(dt), size=(steps, numberOfSims))
-    )  # 每一期的增量/漲跌幅
-    St = np.vstack([np.ones(numberOfSims), St])  # 垂直合併二維數列(水平=hstack)
-    St = S0 * St.cumprod(axis=0) # 累積加減
-
-    time = np.linspace(0,T,steps+1)
-    df_St = pd.concat([pd.DataFrame(time,columns=["t"]),pd.DataFrame(St,columns=["St"])],axis=1)   
-    return df_St
-
-def get_default_St(St_sce, r=0.05, sigma=0.3, T=1, steps=20):
-    St_default = pd.read_csv("stock price.csv")
-    df_St = pd.DataFrame( np.linspace(0,T,steps+1) )
-    if St_sce == "大漲":
-        c="St1"
-    elif St_sce == "小漲":
-        c="St2"
-    elif St_sce == "持平":
-        c="St3"
-    elif St_sce == "小跌":
-        c="St4"
-    elif St_sce == "大跌":
-        c="St5"
-    elif St_sce == "17.2":
-        c="St6"
-    elif St_sce == "17.3":
-        c="St7"
-    df_St = pd.concat([df_St,St_default[c]],axis=1)
-    df_St.columns=["t","St"]
-    return df_St
-
 def get_greeks(df_St, K_list, CP, r=0.05, sigma=0.3, T=1, steps=20):
     df_greek = pd.DataFrame(columns=["A_Price","A_Delta","A_Gamma","A_Vega", "A_Theta",
                                      "B_Price","B_Delta","B_Gamma","B_Vega", "B_Theta",
@@ -155,23 +122,87 @@ def get_greeks(df_St, K_list, CP, r=0.05, sigma=0.3, T=1, steps=20):
             elif CP[x] == "Short Put":
                 option.append( np.hstack([p.price, p.greek*-1]) )
         
-        df_greek.loc[i] = np.hstack([option[0], option[1], option[2], option[0][1:4]*quantity*-1])      
+        df_greek.loc[i] = np.hstack([option[0], option[1], option[2], option[0][1:4]*quantity])      
     
-    return pd.concat([df_St, df_greek],axis=1)
+    return pd.concat([df_St, df_greek],axis=1).round(4)
 
-# function hedging ===================================================================================================
+# === Simulate Stock Price(Future) ===
+def get_GBM_St(steps=20, r=0.05, sigma=0.3, T=1):
+    dt = T/steps # calc each time step
+    
+    St = np.exp(
+        (mu - sigma ** 2 / 2) * dt
+        + sigma * np.random.normal(0, np.sqrt(dt), size=(steps, numberOfSims))
+    )  # 每一期的增量/漲跌幅
+    St = np.vstack([np.ones(numberOfSims), St])  # 垂直合併二維數列(水平=hstack)
+    St = S0 * St.cumprod(axis=0) # 累積加減
+
+    time = np.linspace(0,T,steps+1)
+    df_St = pd.concat([pd.DataFrame(time,columns=["t"]),pd.DataFrame(St,columns=["St"])],axis=1)   
+    return df_St
+def get_default_St(St_sce, r=0.05, sigma=0.3, T=1, steps=20):
+    St_default = pd.read_csv("data/stock price.csv")
+    df_St = pd.DataFrame( np.linspace(0,T,steps+1) )
+    if St_sce == "大漲":
+        c="St1"
+    elif St_sce == "小漲":
+        c="St2"
+    elif St_sce == "持平":
+        c="St3"
+    elif St_sce == "小跌":
+        c="St4"
+    elif St_sce == "大跌":
+        c="St5"
+    elif St_sce == "17.2":
+        c="St6"
+    elif St_sce == "17.3":
+        c="St7"
+    df_St = pd.concat([df_St,St_default[c]],axis=1)
+    df_St.columns=["t","St"]
+    return df_St
+
+# === Hedging ===
 def get_delta_hedge(df_price, r=0.05, sigma=0.3, T=1, sell_price=3):
     steps = len(df_price)-1
     dt = T/steps # calc each time step
     df_delta = pd.DataFrame(columns=["Holding_shares","Shares_purchased","Cost_of_Shares_purchased","Interest_cost ",
                                     "Cumulative_cost_including_interest","Option_Profit","HedgingStock_Profit","Total_Profit"])
-    df_delta["Holding_shares"] = round( df_price["A_總Delta"], 1 )
+    df_delta["Holding_shares"] = - round( df_price["A_總Delta"], 1 )
     df_delta["Shares_purchased"] = df_delta["Holding_shares"] - df_delta["Holding_shares"].shift()
     df_delta["Shares_purchased"].iloc[0] = df_delta["Holding_shares"].iloc[0]
     df_delta["Cost_of_Shares_purchased"] = df_delta["Shares_purchased"] * df_price["St"]
     for step in range(0, len(df_price)): #0~20
         if step == 0:
             df_delta["Interest_cost "].iloc[0] = 0.0
+            df_delta["Cumulative_cost_including_interest"].iloc[0] = df_delta["Cost_of_Shares_purchased"].iloc[0]
+        else:
+            df_delta.at[step,"Interest_cost "] = df_delta["Cumulative_cost_including_interest"].iloc[step-1] *  (exp(r*dt)-1)
+            df_delta.at[step,"Cumulative_cost_including_interest"] = df_delta["Cumulative_cost_including_interest"].iloc[step-1] \
+                                                        + df_delta["Cost_of_Shares_purchased"].iloc[step] \
+                                                        + df_delta["Interest_cost "].iloc[step]
+    df_delta["Option_Profit"] = ( sell_price*exp(r*df_price["t"]) -  df_price["A_Price"] ) * quantity
+    df_delta["HedgingStock_Profit"] =  df_delta["Holding_shares"] * df_price["St"] - df_delta["Cumulative_cost_including_interest"]
+    df_delta["Total_Profit"] =  df_delta["Option_Profit"] + df_delta["HedgingStock_Profit"]
+    df_delta = pd.concat([df_price["t"],df_delta.astype(float)],axis=1)
+    return df_delta.round(2)
+
+def get_delta_hedge_2week(df_price, freq=2, r=0.05, sigma=0.3, T=1, sell_price=3):
+    steps = len(df_price)-1
+    dt = T/steps # calc each time step
+    df_delta = pd.DataFrame(columns=["Holding_shares","Shares_purchased","Cost_of_Shares_purchased","Interest_cost ",
+                                    "Cumulative_cost_including_interest","Option_Profit","HedgingStock_Profit","Total_Profit"])
+    for step in range(0, len(df_price)): #0~20
+            if step%freq == 0:  # 0,2,4...
+                df_delta.at[step,"Holding_shares"] = - round(df_price.at[step,"A_總Delta"], 1)
+            else: df_delta.at[step,"Holding_shares"] = df_delta.at[step-1,"Holding_shares"]
+                
+            
+    df_delta["Shares_purchased"] = df_delta["Holding_shares"] - df_delta["Holding_shares"].shift()
+    df_delta["Shares_purchased"].iloc[0] = df_delta["Holding_shares"].iloc[0]
+    df_delta["Cost_of_Shares_purchased"] = df_delta["Shares_purchased"] * df_price["St"]
+    for step in range(0, len(df_price)): #0~20
+        if step == 0:
+            df_delta["Interest_cost "].iloc[0] = 0
             df_delta["Cumulative_cost_including_interest"].iloc[0] = df_delta["Cost_of_Shares_purchased"].iloc[0]
         else:
             df_delta.at[step,"Interest_cost "] = df_delta["Cumulative_cost_including_interest"].iloc[step-1] *  (exp(r*dt)-1)
@@ -191,8 +222,7 @@ def get_gamma_hedge(df_price, r=0.05, sigma=0.3, T=1, sell_price=3):
     df_gamma = pd.DataFrame(columns=["B部位_持有量","B部位_增減量","B部位_增減成本","B部位_利息成本","B部位_累積成本","持有B後的_總Delta",
                                      "Holding_shares","Shares_purchased","Cost_of_Shares_purchased","Interest_cost ","Cumulative_cost_including_interest",
                                      "Option_Profit","B部位_損益","HedgingStock_Profit","Total_Profit"])
-    #df_gamma["B部位_持有量"] = round( -1 * df_price["A部位總Gamma"] / df_price["B選擇權Gamma"], 4)
-    df_gamma["B部位_持有量"] =  -1 * df_price["A_總Gamma"] / df_price["B_Gamma"]
+    df_gamma["B部位_持有量"] = -1 * round( df_price["A_Gamma"] * quantity / df_price["B_Gamma"], 2 )
     df_gamma["B部位_持有量"][df_gamma["B部位_持有量"].isnull()]=0
     df_gamma.replace([np.inf, -np.inf], 0, inplace=True)
     df_gamma["B部位_增減量"] = df_gamma["B部位_持有量"] - df_gamma["B部位_持有量"].shift()
@@ -222,7 +252,7 @@ def get_gamma_hedge(df_price, r=0.05, sigma=0.3, T=1, sell_price=3):
             df_gamma.at[step,"Cumulative_cost_including_interest"] = df_gamma["Cumulative_cost_including_interest"].iloc[step-1] \
                                                         + df_gamma["Cost_of_Shares_purchased"].iloc[step] \
                                                         + df_gamma["Interest_cost "].iloc[step]
-    df_gamma["Option_Profit"] = ( sell_price*exp(r*df_price["t"]/T) -  df_price["A_Price"] ) * quantity
+    df_gamma["Option_Profit"] = ( sell_price*exp(r*df_price["t"]) -  df_price["A_Price"] ) * quantity
     df_gamma["B部位_損益"] = df_gamma["B部位_持有量"] * df_price["B_Price"] - df_gamma["B部位_累積成本"]
     df_gamma["HedgingStock_Profit"] =  df_gamma["Holding_shares"] * df_price["St"] - df_gamma["Cumulative_cost_including_interest"]
     df_gamma["Total_Profit"] =  df_gamma["Option_Profit"] + df_gamma["B部位_損益"] + df_gamma["HedgingStock_Profit"]
@@ -299,7 +329,7 @@ def get_vega_hedge(df_price, r=0.05, sigma=0.3, T=1, sell_price=3):
             df_vega.at[step,"Cumulative_cost_including_interest"] = df_vega["Cumulative_cost_including_interest"].iloc[step-1] \
                                                         + df_vega["Cost_of_Shares_purchased"].iloc[step] \
                                                         + df_vega["Interest_cost "].iloc[step]
-    df_vega["Option_Profit"] = ( sell_price*exp(r*df_price["t"]/T) -  df_price["A_Price"] ) * quantity
+    df_vega["Option_Profit"] = ( sell_price*exp(r*df_price["t"]) -  df_price["A_Price"] ) * quantity
     df_vega["B部位_損益"] = df_vega["B部位_持有量"] * df_price["B_Price"] - df_vega["B部位_累積成本"]
     df_vega["C部位_損益"] = df_vega["C部位_持有量"] * df_price["C_Price"] - df_vega["C部位_累積成本"]
     df_vega["HedgingStock_Profit"] =  df_vega["Holding_shares"] * df_price["St"] - df_vega["Cumulative_cost_including_interest"]
@@ -307,39 +337,6 @@ def get_vega_hedge(df_price, r=0.05, sigma=0.3, T=1, sell_price=3):
     df_vega = pd.concat([df_price["t"], df_vega.astype(float)],axis=1)
 
     return df_vega.round(2)
-
-# (2)兩周 - 計算delta避險損益 get_delta_hedge_2week(df_price)
-def get_delta_hedge_2week(df_price, freq=2, r=0.05, sigma=0.3, T=1, sell_price=3):
-    steps = len(df_price)-1
-    dt = T/steps # calc each time step
-    df_delta = pd.DataFrame(columns=["Holding_shares","Shares_purchased","Cost_of_Shares_purchased","Interest_cost ",
-                                    "Cumulative_cost_including_interest","Option_Profit","HedgingStock_Profit","Total_Profit"])
-    for step in range(0, len(df_price)): #0~20
-            if step%freq == 0:  # 0,2,4...
-                df_delta.at[step,"Holding_shares"] = round(df_price.at[step,"A_總Delta"], 1)
-            else: df_delta.at[step,"Holding_shares"] = df_delta.at[step-1,"Holding_shares"]
-                
-            
-    df_delta["Shares_purchased"] = df_delta["Holding_shares"] - df_delta["Holding_shares"].shift()
-    df_delta["Shares_purchased"].iloc[0] = df_delta["Holding_shares"].iloc[0]
-    df_delta["Cost_of_Shares_purchased"] = df_delta["Shares_purchased"] * df_price["St"]
-    for step in range(0, len(df_price)): #0~20
-        if step == 0:
-            df_delta["Interest_cost "].iloc[0] = 0
-            df_delta["Cumulative_cost_including_interest"].iloc[0] = df_delta["Cost_of_Shares_purchased"].iloc[0]
-        else:
-            df_delta.at[step,"Interest_cost "] = df_delta["Cumulative_cost_including_interest"].iloc[step-1] *  (exp(r*dt)-1)
-            df_delta.at[step,"Cumulative_cost_including_interest"] = df_delta["Cumulative_cost_including_interest"].iloc[step-1] \
-                                                        + df_delta["Cost_of_Shares_purchased"].iloc[step] \
-                                                        + df_delta["Interest_cost "].iloc[step]
-    df_delta["Option_Profit"] = ( sell_price*exp(r*df_price["t"]) -  df_price["A_Price"] ) * quantity
-    df_delta["HedgingStock_Profit"] =  df_delta["Holding_shares"] * df_price["St"] - df_delta["Cumulative_cost_including_interest"]
-    df_delta["Total_Profit"] =  df_delta["Option_Profit"] + df_delta["HedgingStock_Profit"]
-    df_delta = pd.concat([df_price["t"],df_delta.astype(float)],axis=1)
-    return df_delta.round(2)
-
-
-
 
 
 

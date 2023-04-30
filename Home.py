@@ -11,6 +11,19 @@ st.set_page_config(
     page_icon="👋",
 )
 
+# no footer
+st.markdown("""
+<style>
+.css-9s5bis.edgvbvh3
+{
+    visibility: hidden;
+}
+.css-h5rgaw.egzxvld1
+{
+    visibility: hidden;
+}
+</style>
+""",unsafe_allow_html=True) #用HTML unsafe_allow_html=True
 
 
 # 內文

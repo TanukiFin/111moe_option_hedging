@@ -57,14 +57,22 @@ class getGBM:
         # volatility
         T = 1 # time in years
         dt = T/steps # calc each time step
-
+        
+        Rt = (mu - sigma ** 2 / 2) * dt + sigma * np.random.normal(0, 1          , size=(steps, numberOfSims)) * np.sqrt(dt) # 每一期的增量/漲跌幅
+        Rt = (mu - sigma ** 2 / 2) * dt + sigma * np.random.normal(0, np.sqrt(dt), size=(steps, numberOfSims))  # 每一期的增量/漲跌幅
+        self.Rt = np.vstack([np.zeros(numberOfSims), Rt])
+        # 待修正
+        self.lnSt = (1+self.Rt).cumprod(axis=0)
+        St = np.exp(self.Rt)
+        self.St = St
+        # np.random.normal(loc平均=0.0, scale標準差=1.0, size輸出大小=None)
         St = np.exp(
             (mu - sigma ** 2 / 2) * dt
             + sigma * np.random.normal(0, np.sqrt(dt), size=(steps,numberOfSims))
         )  # 每一期的增量/漲跌幅
         St = np.vstack([np.ones(numberOfSims), St])  # 垂直合併二維數列(水平=hstack)
-        St = S0 * St.cumprod(axis=0) # 累積加減
-
+        St = S0 * St.cumprod(axis=0) # 累積乘積 
+        
         time = np.linspace(0,T,steps+1)
         self.df = pd.DataFrame(St, index=time)
         self.fig = px.line(self.df, height=400, width=600, template="plotly_white").update_layout(showlegend=False)
@@ -124,8 +132,14 @@ with c4:
 with c5:
     sigma = st.slider("sigma", 0.1, 1.0, 0.3, 0.05)
 
-GBMline = getGBM(steps,numberOfSims,mu,S0,sigma)
-st.plotly_chart(GBMline.fig)
+
+tab1, tab2, tab3, tab4 = st.tabs(["📈 Chart", "🗃 Rt", "🗃 lnSt", "🗃 St"])
+
+GBMline = getGBM(steps, numberOfSims, mu, S0, sigma)
+tab1.plotly_chart(GBMline.fig)
+tab2.dataframe(GBMline.Rt)
+tab3.dataframe(GBMline.lnSt)
+tab4.dataframe(GBMline.St)
 
 st.code("""
 mu = 0.1 # drift coefficent
