@@ -17,7 +17,7 @@ warnings.filterwarnings("ignore")
 
 st.set_page_config(
     page_title="Delta Hedging - Example",
-    page_icon="📈",
+    page_icon="💸",
     layout="wide",
 )
 
@@ -30,7 +30,7 @@ st.markdown("券商賣100個單位的選擇權，參數如下")
 st.markdown("**S0 =** $49")
 c1, c2 = st.columns(2, gap="large")
 with c1:
-    K_A = st.number_input("**K =**",min_value=40,max_value=60,value=50)
+    K_A = st.number_input("**K =**",min_value=40,max_value=60,value=50, help="履約價")
     r = st.number_input("**r =**",min_value=0.0,max_value=0.1,value=0.05)
     sigma = st.number_input("**sigma =**",min_value=0.1,max_value=0.5,value=0.2)
     T = st.selectbox(
@@ -39,9 +39,9 @@ with c1:
     
 with c2:
     CP_A = st.selectbox(
-    "Type: 券商要賣Call還是賣Put",
-    ("Short Call","Short Put") )
-    sell_price = st.number_input("Sell Price: 券商賣這個選擇權的售價，應高於理論價值(相當於成本)，這樣才有利潤",min_value=1,max_value=20,value=3)
+    """**Type =**""",
+    ("Short Call","Short Put"), help="券商要賣Call還是賣Put" )
+    sell_price = st.number_input("""**Sell Price =**""",min_value=1,max_value=20,value=3, help="券商賣這個選擇權的售價，應高於理論價值(相當於成本)，這樣才有利潤")
 
     if CP_A=="Short Call": st.metric(label="option value at t=0", value=round(bsmodel.call(S0,K_A,r,sigma,T).price,2))
     if CP_A=="Short Put": st.metric(label="option value at t=0", value=round(bsmodel.put(S0,K_A,r,sigma,T).price,2))
@@ -84,12 +84,12 @@ df_delta20 = bsmodel.get_delta_hedge_2week(df_price, freq=20, r=r, sigma=sigma, 
 
 df_all_hedge = pd.DataFrame()
 df_all_hedge["t"] = df_delta["t"]
-df_all_hedge["No Hedging"] = df_delta["Option_Profit"]
-df_all_hedge["Delta1"] = df_delta["Total_Profit"]
-df_all_hedge["Delta2"] = df_delta2["Total_Profit"]
-df_all_hedge["Delta5"] = df_delta5["Total_Profit"]
-df_all_hedge["Delta10"] = df_delta10["Total_Profit"]
-df_all_hedge["Delta20"] = df_delta20["Total_Profit"]
+df_all_hedge["No Hedging"] = df_delta["A部位損益"]
+df_all_hedge["Delta1"] = df_delta["總損益"]
+df_all_hedge["Delta2"] = df_delta2["總損益"]
+df_all_hedge["Delta5"] = df_delta5["總損益"]
+df_all_hedge["Delta10"] = df_delta10["總損益"]
+df_all_hedge["Delta20"] = df_delta20["總損益"]
 
 
 
@@ -121,22 +121,22 @@ with c1:
 # === 各類避險的表格 ===
 if CP_A == "Short Call":
     if df_price["St"].iloc[-1] > K_A: # Call履約
-        cost = df_delta["Cumulative_cost_including_interest"].iloc[-1] - K_A*quantity
-        cost5 = df_delta5["Cumulative_cost_including_interest"].iloc[-1] - K_A*quantity
-        cost20 = df_delta20["Cumulative_cost_including_interest"].iloc[-1] - K_A*quantity
+        cost = df_delta["現貨累積成本"].iloc[-1] - K_A*quantity
+        cost5 = df_delta5["現貨累積成本"].iloc[-1] - K_A*quantity
+        cost20 = df_delta20["現貨累積成本"].iloc[-1] - K_A*quantity
     elif df_price["St"].iloc[-1] < K_A: # Call不履約
-        cost = df_delta["Cumulative_cost_including_interest"].iloc[-1]
-        cost5 = df_delta5["Cumulative_cost_including_interest"].iloc[-1]
-        cost20 = df_delta20["Cumulative_cost_including_interest"].iloc[-1]
+        cost = df_delta["現貨累積成本"].iloc[-1]
+        cost5 = df_delta5["現貨累積成本"].iloc[-1]
+        cost20 = df_delta20["現貨累積成本"].iloc[-1]
 elif CP_A == "Short Put":
     if df_price["St"].iloc[-1] < K_A: # Put履約
-        cost = df_delta["Cumulative_cost_including_interest"].iloc[-1]
-        cost5 = df_delta5["Cumulative_cost_including_interest"].iloc[-1] - K_A*quantity
-        cost20 = df_delta20["Cumulative_cost_including_interest"].iloc[-1] - K_A*quantity
+        cost = df_delta["現貨累積成本"].iloc[-1]
+        cost5 = df_delta5["現貨累積成本"].iloc[-1] - K_A*quantity
+        cost20 = df_delta20["現貨累積成本"].iloc[-1] - K_A*quantity
     elif df_price["St"].iloc[-1] > K_A: # Put不履約
-        cost = df_delta["Cumulative_cost_including_interest"].iloc[-1]
-        cost5 = df_delta5["Cumulative_cost_including_interest"].iloc[-1]
-        cost20 = df_delta20["Cumulative_cost_including_interest"].iloc[-1]
+        cost = df_delta["現貨累積成本"].iloc[-1]
+        cost5 = df_delta5["現貨累積成本"].iloc[-1]
+        cost20 = df_delta20["現貨累積成本"].iloc[-1]
 
 tab2.markdown(f"""避險成本={round(cost,2)}""")
 tab2.dataframe(df_delta)
@@ -152,8 +152,8 @@ tab5.dataframe(df_price[["t","St","A_Price","A_Delta","A_Gamma"
 df_spot = pd.DataFrame()
 df_spot["t"] = df_delta["t"]
 df_spot["A部位Delta"] = df_price["A_總Delta"]
-df_spot["避險部位_現貨持有量"] = df_delta["Holding_shares"]
-df_spot["Portfolio_Delta"] = round(df_price["A_總Delta"]+df_delta["Holding_shares"],2)
+df_spot["避險部位_現貨持有量"] = df_delta["現貨持有量"]
+df_spot["Portfolio_Delta"] = round(df_price["A_總Delta"]+df_delta["現貨持有量"],2)
 fig = px.line(df_spot, x="t", y=["A部位Delta","避險部位_現貨持有量","Portfolio_Delta"], title="Delta Hedging Delta與現貨應持有量的關係", \
                labels={"x":"t"},height=400, width=600, template="plotly_white",)
 fig.update_layout(legend=dict( orientation="h",
@@ -165,7 +165,7 @@ st.info(f"""目前參數:　　:red[S0]={S0},　　:red[K]={K_A},　　:red[r]={
         \n 　　　　　　:red[type]={CP_A},　　:red[sell price]={sell_price},　　:red[情境]={St_sce}""")
 
 # 圖: Delta Hedging 各部位損益
-fig = px.line(df_delta.round(2), x="t", y=["Option_Profit","HedgingStock_Profit","Total_Profit"], title="Delta Hedging 各部位損益(每期避險)", \
+fig = px.line(df_delta.round(2), x="t", y=["A部位損益","現貨部位損益","總損益"], title="Delta Hedging 各部位損益(每期避險)", \
                labels={"value":"profit"},height=400, width=600, template="plotly_white") 
 fig.update_layout(legend=dict( orientation="h",
     yanchor="bottom", y=1.02,
@@ -175,13 +175,13 @@ fig.update_layout(legend=dict( orientation="h",
 # 圖: Delta Hedging 不同頻率的現貨持有量
 df_spot = pd.DataFrame()
 df_spot["t"] = df_delta["t"]
-df_spot["Delta1"] = df_delta["Holding_shares"]
-df_spot["Delta2"] = df_delta2["Holding_shares"]
-df_spot["Delta5"] = df_delta5["Holding_shares"]
-df_spot["Delta10"] = df_delta10["Holding_shares"]
-df_spot["Delta20"] = df_delta20["Holding_shares"]
+df_spot["Delta1"] = df_delta["現貨持有量"]
+df_spot["Delta2"] = df_delta2["現貨持有量"]
+df_spot["Delta5"] = df_delta5["現貨持有量"]
+df_spot["Delta10"] = df_delta10["現貨持有量"]
+df_spot["Delta20"] = df_delta20["現貨持有量"]
 fig = px.line(df_spot, x="t", y=cname[1:] , title="Delta Hedging 不同頻率的現貨持有量", \
-               labels={"x":"t","value":"Holding_shares"},height=400, width=600, template="plotly_white",)
+               labels={"x":"t","value":"現貨持有量"},height=400, width=600, template="plotly_white",)
 fig.update_layout(legend=dict( orientation="h",
     yanchor="bottom", y=1.02,
     xanchor="right", x=1))
@@ -193,13 +193,13 @@ df_gamma = bsmodel.get_gamma_hedge(df_price, r, sigma, T, sell_price)
 cname = ["No Hedging","Delta Hedging","Delta-Gamma Hedging"]
 df_all_hedge = pd.DataFrame(columns=["t"]+cname)
 df_all_hedge["t"] = df_delta["t"]
-df_all_hedge["No Hedging"] = df_delta["Option_Profit"]
-df_all_hedge["Delta Hedging"] = df_delta["Total_Profit"]
-df_all_hedge["Delta-Gamma Hedging"] = df_gamma["Total_Profit"]
+df_all_hedge["No Hedging"] = df_delta["A部位損益"]
+df_all_hedge["Delta Hedging"] = df_delta["總損益"]
+df_all_hedge["Delta-Gamma Hedging"] = df_gamma["總損益"]
 
 fig1 = px.line(df_all_hedge.round(2), x="t", y=cname, title="Delta-Gamma避險損益", \
                labels={"value":"profit"},height=400, width=700, template="plotly_white")
-fig2 = px.line(df_gamma.round(2), x="t", y=["Option_Profit","B部位_損益","HedgingStock_Profit","Total_Profit"], title="Delta-Gamma Hedging", \
+fig2 = px.line(df_gamma.round(2), x="t", y=["A部位損益","B部位損益","現貨部位損益","總損益"], title="Delta-Gamma Hedging", \
                labels={"value":"profit"},height=400, width=700, template="plotly_white") 
 tab1, tab2, tab3 = st.tabs(["📈 Delta-Gamma避險損益", "📈 各部位損益","🗃 Data"])
 tab1.plotly_chart(fig1)

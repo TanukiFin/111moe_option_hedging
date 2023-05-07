@@ -15,7 +15,7 @@ warnings.filterwarnings("ignore")
 
 st.set_page_config(
     page_title="Greek Letters",
-    page_icon="📈",
+    page_icon="💸",
     layout="wide",
 )
 st.markdown("""
@@ -146,10 +146,10 @@ st.latex(r"""
     p = Ke^{-rT} N(-d_2) - S_0 N(-d_1)
 """)
 st.latex(r"""
-    d_1 = \frac{ ln( \frac{S_0}{K} ) + (r+ \frac{\sigma}{2}) T }{ \sigma \sqrt{T} }
+    d_1 = \frac{ ln( \frac{S_0}{K} ) + (r+ \frac{ \sigma^{2} }{2}) T }{ \sigma \sqrt{T} }
 """)
 st.latex(r"""
-    d_2 = \frac{ ln( \frac{S_0}{K} ) + (r- \frac{\sigma}{2}) T }{ \sigma \sqrt{T} }
+    d_2 = \frac{ ln( \frac{S_0}{K} ) + (r- \frac{  \sigma^{2} }{2}) T }{ \sigma \sqrt{T} }
     = d_1 - \sigma \sqrt{T}
 """)
 st.latex(r"""

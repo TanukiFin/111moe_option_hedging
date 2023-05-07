@@ -27,14 +27,14 @@ st.markdown("""
 
 
 # 內文
-st.header("Option Greeks Hedging")
+st.header("選擇權避險操作模組")
 st.text("still building...")
 
 
 # 頁尾
 c1, c2 = st.columns(2)
 with c1:
-    st.info('**Power by: NTUST Finance**', icon="💡")
+    st.info('**Power by: NTUST Option Lab**', icon="💡")
 with c2:
     st.info('**GitHub: @tanukifin**', icon="💻")
 
