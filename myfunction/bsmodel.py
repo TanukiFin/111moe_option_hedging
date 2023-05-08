@@ -274,7 +274,7 @@ def get_gamma_hedge_v2(df_price, r=0.05, sigma=0.3, T=1, sell_price=3):
     df_gamma["B持有量"] = -1 * round( df_price["A_Gamma"] * quantity / df_price["B_Gamma"], 2 )
     for i in range(3):
         df_gamma.at[df_gamma.index[-i-1],"B持有量"] = 0
-    df_gamma["B持有量"][df_gamma["B持有量"].isnull()]=0
+    df_gamma["B持有量"][df_gamma["B持有量"].isnull()]=0 # 最後三期變gamma = 0
     df_gamma.replace([np.inf, -np.inf], 0, inplace=True)
     df_gamma["B增減量"] = df_gamma["B持有量"] - df_gamma["B持有量"].shift()
     df_gamma["B增減量"].iloc[0] = df_gamma["B持有量"].iloc[0]
