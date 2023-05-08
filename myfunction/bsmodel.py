@@ -124,7 +124,7 @@ def get_greeks(df_St, K_list, CP, r=0.05, sigma=0.3, T=1, steps=20):
         
         df_greek.loc[i] = np.hstack([option[0], option[1], option[2], option[0][1:4]*quantity])      
     
-    return pd.concat([df_St, df_greek],axis=1).round(4)
+    return pd.concat([df_St, df_greek],axis=1).fillna(0).round(4)
 
 # === Simulate Stock Price(Future) ===
 def get_GBM_St(steps=20, r=0.05, sigma=0.3, T=1):
@@ -227,6 +227,53 @@ def get_gamma_hedge(df_price, r=0.05, sigma=0.3, T=1, sell_price=3):
                                      "A部位損益","B部位損益","現貨部位損益","總損益"])
     df_gamma["St"] = df_price["St"]
     df_gamma["B持有量"] = -1 * round( df_price["A_Gamma"] * quantity / df_price["B_Gamma"], 2 )
+    df_gamma["B持有量"][df_gamma["B持有量"].isnull()]=0
+    df_gamma.replace([np.inf, -np.inf], 0, inplace=True)
+    df_gamma["B增減量"] = df_gamma["B持有量"] - df_gamma["B持有量"].shift()
+    df_gamma["B增減量"].iloc[0] = df_gamma["B持有量"].iloc[0]
+    df_gamma["B增減成本"] = df_gamma["B增減量"] * df_price["B_Price"]
+    for step in range(0, len(df_price)): #0~20
+        if step == 0:
+            df_gamma["B利息成本"] = 0.0
+            df_gamma["B累積成本"] = df_gamma["B增減成本"].iloc[0]
+        else:
+            df_gamma.at[step,"B利息成本"] = df_gamma["B累積成本"].iloc[step-1] *  (exp(r*dt)-1)
+            df_gamma.at[step,"B累積成本"] = df_gamma["B累積成本"].iloc[step-1] \
+                                                        + df_gamma["B增減成本"].iloc[step] \
+                                                        + df_gamma["B利息成本"].iloc[step]
+    df_gamma["用B避險後的總Delta"] = df_price["A_總Delta"] + df_gamma["B持有量"] * df_price["B_Delta"]
+    # 現貨部位
+    df_gamma["現貨持有量"] = round( -1 * df_gamma["用B避險後的總Delta"], 1 )
+    df_gamma["現貨增減量"] = df_gamma["現貨持有量"] - df_gamma["現貨持有量"].shift()
+    df_gamma["現貨增減量"].iloc[0] = df_gamma["現貨持有量"].iloc[0]
+    df_gamma["現貨增減成本"] = df_gamma["現貨增減量"] * df_price["St"]
+    for step in range(0, len(df_price)): #0~20
+        if step == 0:
+            df_gamma["現貨利息成本 "] = 0.0
+            df_gamma["現貨累積成本"] = df_gamma["現貨增減成本"].iloc[0]
+        else:
+            df_gamma.at[step,"現貨利息成本 "] = df_gamma["現貨累積成本"].iloc[step-1] *  (exp(r*dt)-1)
+            df_gamma.at[step,"現貨累積成本"] = df_gamma["現貨累積成本"].iloc[step-1] \
+                                                        + df_gamma["現貨增減成本"].iloc[step] \
+                                                        + df_gamma["現貨利息成本 "].iloc[step]
+    df_gamma["A部位損益"] = ( sell_price*exp(r*df_price["t"]) -  df_price["A_Price"] ) * quantity
+    df_gamma["B部位損益"] = df_gamma["B持有量"] * df_price["B_Price"] - df_gamma["B累積成本"]
+    df_gamma["現貨部位損益"] =  df_gamma["現貨持有量"] * df_price["St"] - df_gamma["現貨累積成本"]
+    df_gamma["總損益"] =  df_gamma["A部位損益"] + df_gamma["B部位損益"] + df_gamma["現貨部位損益"]
+    df_gamma = pd.concat([df_price["t"],df_gamma.astype(float)],axis=1)
+    return df_gamma.round(2)
+
+def get_gamma_hedge_v2(df_price, r=0.05, sigma=0.3, T=1, sell_price=3):
+    steps = len(df_price)-1
+    dt = T/steps # calc each time step
+    # B部位
+    df_gamma = pd.DataFrame(columns=["St","B持有量","B增減量","B增減成本","B利息成本","B累積成本","用B避險後的總Delta",
+                                     "現貨持有量","現貨增減量","現貨增減成本","現貨利息成本 ","現貨累積成本",
+                                     "A部位損益","B部位損益","現貨部位損益","總損益"])
+    df_gamma["St"] = df_price["St"]
+    df_gamma["B持有量"] = -1 * round( df_price["A_Gamma"] * quantity / df_price["B_Gamma"], 2 )
+    for i in range(3):
+        df_gamma.at[df_gamma.index[-i-1],"B持有量"] = 0
     df_gamma["B持有量"][df_gamma["B持有量"].isnull()]=0
     df_gamma.replace([np.inf, -np.inf], 0, inplace=True)
     df_gamma["B增減量"] = df_gamma["B持有量"] - df_gamma["B持有量"].shift()
