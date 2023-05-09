@@ -15,8 +15,8 @@ v0_url = "https://api.helius.xyz/v0"
 v1_url = "https://api.helius.xyz/v1"
 
 st.set_page_config(
-    page_title="BM GBM",
-    page_icon="📈",
+    page_title="選擇權避險操作模組",
+    page_icon="💸",
     #layout="wide",
 )
 

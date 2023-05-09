@@ -11,8 +11,8 @@ warnings.filterwarnings("ignore")
 
 
 st.set_page_config(
-    page_title="Wiener Process",
-    page_icon="📈",
+    page_title="選擇權避險操作模組",
+    page_icon="💸",
     #layout="wide",
 )
 

@@ -14,7 +14,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 st.set_page_config(
-    page_title="Greek Letters",
+    page_title="選擇權避險操作模組",
     page_icon="💸",
     layout="wide",
 )
@@ -79,8 +79,27 @@ with c2:
     xanchor="right", x=1))
     st.plotly_chart(fig, use_container_width=True)
 
-# Greek Letters ==================================================================================
+# BS price ==================================================================================
 st.header("Black–Scholes–Merton Pricing formulas")
+st.latex(r"""
+    c = S_0 N(d_1) - Ke^{-rT} N(d_2)
+""")
+st.latex(r"""
+    p = Ke^{-rT} N(-d_2) - S_0 N(-d_1)
+""")
+st.latex(r"""
+    d_1 = \frac{ ln( \frac{S_0}{K} ) + (r+ \frac{ \sigma^{2} }{2}) T }{ \sigma \sqrt{T} }
+""")
+st.latex(r"""
+    d_2 = \frac{ ln( \frac{S_0}{K} ) + (r- \frac{  \sigma^{2} }{2}) T }{ \sigma \sqrt{T} }
+    = d_1 - \sigma \sqrt{T}
+""")
+st.latex(r"""
+    N^{\prime}(x) = \frac{1}{ \sqrt{2 \pi} } e^{-x^2/2}
+""")
+
+# Greek Letters ==================================================================================
+st.header("Black–Scholes–Merton Greek Letters")
 # Delta
 c1, c2 = st.columns([1,1])
 with c1:
@@ -137,24 +156,7 @@ with c2:
     """)
 
 
-# BS price ==================================================================================
-st.header("Black–Scholes–Merton Pricing formulas")
-st.latex(r"""
-    c = S_0 N(d_1) - Ke^{-rT} N(d_2)
-""")
-st.latex(r"""
-    p = Ke^{-rT} N(-d_2) - S_0 N(-d_1)
-""")
-st.latex(r"""
-    d_1 = \frac{ ln( \frac{S_0}{K} ) + (r+ \frac{ \sigma^{2} }{2}) T }{ \sigma \sqrt{T} }
-""")
-st.latex(r"""
-    d_2 = \frac{ ln( \frac{S_0}{K} ) + (r- \frac{  \sigma^{2} }{2}) T }{ \sigma \sqrt{T} }
-    = d_1 - \sigma \sqrt{T}
-""")
-st.latex(r"""
-    N^{\prime}(x) = \frac{1}{ \sqrt{2 \pi} } e^{-x^2/2}
-""")
+
 
 # Portfolio value  ==================================================================================
 st.header("Portfolio value")
