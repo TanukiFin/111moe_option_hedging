@@ -7,8 +7,9 @@ import datetime
 import matplotlib.pyplot as plt
 
 st.set_page_config(
-    page_title="Home",
-    page_icon="👋",
+    page_title="選擇權避險操作模組",
+    page_icon="💸",
+    layout="wide",
 )
 
 # no footer
@@ -26,15 +27,22 @@ def no_footer():
     </style>
     """,unsafe_allow_html=True) #用HTML unsafe_allow_html=True
 
+# 顏色
+# st.markdown("""<span style="color:blue">some *blue* text</span>.""",unsafe_allow_html=True)
+
 # 內文
 st.header("選擇權避險操作模組")
 st.text("still building...")
 
 
 # 頁尾
-c1, c2 = st.columns(2)
-with c1:
-    st.info('**Power by: NTUST Option Lab**', icon="💡")
-with c2:
-    st.info('**GitHub: @tanukifin**', icon="💻")
-
+c1, c2, c3, c4 = st.columns(4)
+c1.info('**Power by: NTUST Option Lab**', icon="💡")
+c2.info('**GitHub**', icon="💻")
+st.subheader("""使用教學""")
+st.markdown("""
+    <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vRZLQ5Ty-qFwAkn_TtAhCDLAjLgwKCPoFY30jI9AGsu3Pux9e06w3do4rYY2zZUvYS1tJUmaMaOHsjM/embed?start=false&loop=false&delayms=3000" 
+    align="middle" frameborder="0" width="960" height="569" allowfullscreen="true" 
+    mozallowfullscreen="true" webkitallowfullscreen="true">
+    </iframe>
+    """, unsafe_allow_html=True)
