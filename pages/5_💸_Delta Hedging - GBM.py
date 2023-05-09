@@ -17,7 +17,7 @@ warnings.filterwarnings("ignore")
 
 # === 預設參數 ===
 st.set_page_config(
-    page_title="Delta Hedging - GBM",
+    page_title="選擇權避險操作模組",
     page_icon="💸",
     layout="wide",
 )
@@ -69,19 +69,19 @@ df_price = bsmodel.get_greeks(st.session_state.df_St, K_list=[K_A,K_B,K_C], CP =
 #%% === B區: 股價 & 權證價圖 ===
 c1, c2 = st.columns(2, gap="large")
 with c1:
-    tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data"])
+    tab1, tab2 = st.tabs(["📈 Chart", "📚 Data"])
     fig = px.line(df_price.round(2), x="t", y="St", title="Stock Price", height=300, template="plotly_white").update_layout(showlegend=False)
     tab1.plotly_chart(fig, use_container_width=True)
     tab2.write(df_price[["t","St"]].round(2),axis=1)
 
 with c2:
-    tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data"])
+    tab1, tab2 = st.tabs(["📈 Chart", "📚 Data"])
     fig = px.line(df_price.round(2), x="t", y="A_Price", title=CP_A[6:10]+" Option Price", height=300, template="plotly_white").update_layout(showlegend=False)
     tab1.plotly_chart(fig, use_container_width=True)
     tab2.write(df_price[["t","A_Price"]].round(2).rename({"A_Price":"Option Price"},axis=1))
 
 #%% === C區: Greeks圖 ===
-tab1, tab2 = st.tabs(["📈 Greeks","🗃 Data"])
+tab1, tab2 = st.tabs(["📈 Greeks","📚 Data"])
 c1, c2 = tab1.columns(2)
 fig = px.line(df_price.round(2), x="t", y="A_Delta", title="Delta", height=300, template="plotly_white").update_layout(showlegend=False)
 c1.plotly_chart(fig, use_container_width=True)
@@ -95,13 +95,13 @@ df_delta2 = bsmodel.get_delta_hedge_2week(df_price, freq=2, r=r_input, sigma=sig
 df_delta5 = bsmodel.get_delta_hedge_2week(df_price, freq=5, r=r_input, sigma=sigma_input, T=T_input, sell_price=sell_price)
 df_delta10 = bsmodel.get_delta_hedge_2week(df_price, freq=10, r=r_input, sigma=sigma_input, T=T_input, sell_price=sell_price)
 df_delta20 = bsmodel.get_delta_hedge_2week(df_price, freq=20, r=r_input, sigma=sigma_input, T=T_input, sell_price=sell_price)
-df_all_hedge = pd.DataFrame()
-df_all_hedge["t"] = df_delta["t"]
+
+df_all_hedge = df_delta[["t"]]
 df_all_hedge = pd.concat([df_all_hedge,df_delta["A部位損益"],df_delta["總損益"],df_delta2["總損益"],
                           df_delta5["總損益"],df_delta10["總損益"],df_delta20["總損益"]], axis=1)
 df_all_hedge.columns = ["t","No Hedging","Delta1","Delta2","Delta5","Delta10","Delta20"]
 
-tab1, tab2, tab3, tab4 = st.tabs(["📈 不同頻率避險損益","🗃 每期避險", "🗃 每5期避險", "🗃 靜態避險"])
+tab1, tab2, tab3, tab4 = st.tabs(["📈 不同頻率避險損益","📚 每期避險", "📚 每5期避險", "📚 靜態避險"])
 # D-tab1
 c1, c2 = tab1.columns([2,1], gap="large")
 with c2:
@@ -147,7 +147,7 @@ tab4.dataframe(df_delta20)
 
 
 #%% === E區: 其他圖 ===
-tab1, tab2, tab3 = st.tabs(["🗃 Delta與現貨應持有量的關係", "🗃 各部位損益","🗃 不同頻率的現貨持有量"])
+tab1, tab2, tab3 = st.tabs(["📚 Delta與現貨應持有量的關係", "📚 各部位損益","📚 不同頻率的現貨持有量"])
 # E-tab圖1: Delta與現貨應持有量的關係
 df_spot = pd.DataFrame()
 df_spot["t"] = df_delta["t"]

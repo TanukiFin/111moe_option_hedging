@@ -15,7 +15,7 @@ warnings.filterwarnings("ignore")
 
 # === 預設參數 ===
 st.set_page_config(
-    page_title="Delta-Gamma Hedging",
+    page_title="選擇權避險操作模組",
     page_icon="💸",
     layout="wide",
 )
@@ -30,7 +30,7 @@ if 'openweb' not in st.session_state:
     st.session_state.df_St = df_St
     print("=== START ===")
 
-# === 側邊 ===
+#%% === 側邊區 ===
 with st.sidebar:
     st.markdown("**GBM模擬股價的參數**")
     steps_input = st.number_input("**steps =**", min_value=10,max_value=70,value=20)
@@ -43,7 +43,8 @@ with st.sidebar:
         st.session_state.df_St = df_St # 暫存df
     st.markdown("此頁的股價產生方式為根據GBM隨機產生，每次點選網頁左側的[Simulate St]按鈕，即會根據所選參數產生新的隨機股價。")
 
-# === Input區 ===
+
+#%% === A區: Input 區 ===
 st.markdown("券商賣100個單位的選擇權，參數可調整的僅有履約價(K)、Type、Sell Price，其餘皆跟隨網頁左側的GBM參數。")
 c1, c2 = st.columns(2, gap="large")
 with c1:
@@ -77,7 +78,7 @@ st.info(f"""目前參數:　　:red[S0]={S0},　　:red[K]={K_A},　　:red[r]={
 
 df_price = bsmodel.get_greeks(st.session_state.df_St, K_list=[K_A,K_B,K_C], CP = [CP_A, CP_B, CP_C])   
 
-# 股價 & Greek Letters圖 ==================================================================================
+#%% === B區: 股價 & 權證價圖 ===
 c1, c2 = st.columns(2, gap="large")
 with c1:
     tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data"])
@@ -91,29 +92,38 @@ with c2:
     tab1.plotly_chart(fig, use_container_width=True)
     tab2.write(df_price[["t","A_Price"]].round(2).rename({"A_Price":"Option Price"},axis=1))
 
+#%% === C區: Greeks圖 ===
+tab1, tab2 = st.tabs(["📈 Greeks","📚 Data"])
+c1, c2, c3 = tab1.columns(3)
+fig = px.line(df_price.round(2), x="t", y=["A_Delta","B_Delta"], title="Delta", height=300, labels={"value":"Delta"}, template="plotly_white").update_layout(showlegend=False)
+c1.plotly_chart(fig, use_container_width=True)
+fig = px.line(df_price.round(2), x="t", y=["A_Gamma","B_Gamma"], title="Gamma", height=300, labels={"value":"Gamma"}, template="plotly_white").update_layout(showlegend=False)
+c2.plotly_chart(fig, use_container_width=True)
+fig = px.line(df_price.round(2), x="t", y=["A_Vega","B_Vega"], title="Vega", height=300, labels={"value":"Vega"}, template="plotly_white").update_layout(showlegend=False)
+c3.plotly_chart(fig, use_container_width=True)
+tab2.dataframe(df_price[["t","St","A_Price","A_Delta","A_Gamma","A_Vega","B_Price","B_Delta","B_Gamma","B_Vega" ]])
 
-# 損益圖 ==================================================================================
+#%% === D區: 損益圖Delta、Delta-Gamma、Delta-Gamma-Vega避險 ===
 tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data"])
 c1, c2 = tab1.columns([2,1], gap="large")
 df_delta = bsmodel.get_delta_hedge(df_price, r_input, sigma_input, T_input, sell_price)
 df_gamma = bsmodel.get_gamma_hedge(df_price, r_input, sigma_input, T_input, sell_price)
 df_vega = bsmodel.get_vega_hedge(df_price, r_input, sigma_input, T_input, sell_price)
-df_all_hedge = pd.DataFrame(columns=["t","No Hedging","Delta Hedging","Delta-Gamma Hedging","Delta-Gamma-Vega Hedging"])
-df_all_hedge["t"] = df_delta["t"]
-df_all_hedge["No Hedging"] = df_delta["Option_Profit"]
-df_all_hedge["Delta Hedging"] = df_delta["Total_Profit"]
-df_all_hedge["Delta-Gamma Hedging"] = df_gamma["Total_Profit"]
-df_all_hedge["Delta-Gamma-Vega Hedging"] = df_vega["Total_Profit"]
+
+df_all_hedge = df_delta[["t"]]
+df_all_hedge = pd.concat([df_all_hedge, df_delta["A部位損益"], df_delta["總損益"],df_gamma["總損益"], df_vega["總損益"]], axis=1)
+cname = ["No Hedging","Delta Hedging","Delta-Gamma Hedging","Delta-Gamma-Vega Hedging"]
+df_all_hedge.columns = ["t"]+cname
+
 with c2:
-    st.markdown("Variable顯示")
+    st.markdown("避險方式")
     hedge_list = []
     cname = ["No Hedging","Delta Hedging","Delta-Gamma Hedging","Delta-Gamma-Vega Hedging"]
-    cname2 = [" : 不避險的損益"," : 每期避險"," : 每五期避險(week0,week5,week10...)"," : 僅第一期避險"]
     for count in range(len(cname)):
-        if st.checkbox(cname[count]+cname2[count],value=True):
+        if st.checkbox(cname[count],value=True):
             hedge_list.append(cname[count])
 # 圖: 全部避險損益
-fig = px.line(df_all_hedge.round(2), x="t", y=hedge_list, title="Delta Hedging", \
+fig = px.line(df_all_hedge.round(2), x="t", y=hedge_list, title="Delta、Delta-Gamma、Delta-Gamma-Vega避險", \
                labels={"value":"profit"},height=400, width=600, template="plotly_white") 
 fig.update_layout(legend=dict(
     orientation="h",
@@ -125,11 +135,6 @@ fig.update_layout(legend=dict(
 with c1:
     st.plotly_chart(fig, use_container_width=True)
 tab2.dataframe(df_delta)
-# ===============================================================
 
-
-
-# === greek letters ===
-tab1, tab2 = st.tabs(["🗃 Greeks", "🗃 2"])
-tab1.dataframe(df_price)
+#%% === E區: ??? ===
 

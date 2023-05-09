@@ -15,7 +15,7 @@ warnings.filterwarnings("ignore")
 
 # === 預設參數 ===
 st.set_page_config(
-    page_title="華南永昌案例",
+    page_title="選擇權避險操作模組",
     page_icon="💸",
     layout="wide",
 )

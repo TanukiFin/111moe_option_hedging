@@ -16,7 +16,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 st.set_page_config(
-    page_title="績效指標",
+    page_title="選擇權避險操作模組",
     page_icon="💸",
     layout="wide",
 )
@@ -146,7 +146,7 @@ df_gamma2_monte.columns=np.arange(0,len(df_gamma2_monte.columns))
 
 st.header("蒙地卡羅模擬所有路徑")
 # 圖1: 不避險
-tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data-損益"])
+tab1, tab2 = st.tabs(["📈 Chart", "📚 Data-損益"])
 c1, c2, c3 = tab1.columns([3,3,2], gap="medium")
 with c1:
     fig = px.line(df_nohedge_monte, title="不避險損益", \
@@ -167,7 +167,7 @@ tab2.markdown("columns=路徑, index=t")
 tab2.dataframe(df_nohedge_monte)
 
 # 圖2: delta 1
-tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data-損益"])
+tab1, tab2 = st.tabs(["📈 Chart", "📚 Data-損益"])
 c1, c2, c3= tab1.columns([3,3,2], gap="medium")
 with c1:
     fig = px.line(df_delta_monte, title="Delta1 每期避險損益", \
@@ -188,7 +188,7 @@ tab2.dataframe(df_delta_monte)
 
 
 # 圖3: delta 20
-tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data-損益"])
+tab1, tab2 = st.tabs(["📈 Chart", "📚 Data-損益"])
 c1, c2, c3 = tab1.columns([3,3,2], gap="medium")
 with c1:
     fig = px.line(df_delta20_monte, title="Delta20 靜態避險損益", \
@@ -208,7 +208,7 @@ tab2.markdown("columns=路徑, index=t")
 tab2.dataframe(df_delta20_monte)
 
 # 圖4: delta-gamma
-tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data-損益"])
+tab1, tab2 = st.tabs(["📈 Chart", "📚 Data-損益"])
 c1, c2, c3 = tab1.columns([3,3,2], gap="medium")
 with c1:
     fig = px.line(df_gamma_monte, title="Delta-Gamma 避險損益", \
@@ -228,7 +228,7 @@ tab2.markdown("columns=路徑, index=t")
 tab2.dataframe(df_gamma_monte)
 
 # 圖5: delta-gamma v2
-tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data-損益"])
+tab1, tab2 = st.tabs(["📈 Chart", "📚 Data-損益"])
 c1, c2, c3 = tab1.columns([3,3,2], gap="medium")
 with c1:
     fig = px.line(df_gamma2_monte, title="Delta-Gamma v2 避險損益", \
