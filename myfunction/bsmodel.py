@@ -101,12 +101,11 @@ class put:
         self.vega = self.putvega(S,K,r,sigma,T)
         self.theta = self.puttheta(S,K,r,sigma,T)
         self.greek = np.array([self.delta,self.gamma,self.vega,self.theta])
-def get_greeks(df_St, K_list, CP, r=0.05, sigma=0.3, T=1, steps=20):
+def get_greeks(df_St, K_list, CP, r=0.05, sigma=0.3, T=1):
     df_greek = pd.DataFrame(columns=["A_Price","A_Delta","A_Gamma","A_Vega", "A_Theta",
                                      "B_Price","B_Delta","B_Gamma","B_Vega", "B_Theta",
                                      "C_Price","C_Delta","C_Gamma","C_Vega", "C_Theta",
                                      "A_總Delta","A_總Gamma","A_總Vega"])
-    
 
     for i in range(len(df_St)):
         option=[]
@@ -122,9 +121,31 @@ def get_greeks(df_St, K_list, CP, r=0.05, sigma=0.3, T=1, steps=20):
             elif CP[x] == "Short Put":
                 option.append( np.hstack([p.price, p.greek*-1]) )
         
-        df_greek.loc[i] = np.hstack([option[0], option[1], option[2], option[0][1:4]*quantity])      
+        df_greek.loc[i] = np.hstack([option[0], option[1], option[2], option[0][1:4]*quantity])     
     
     return pd.concat([df_St, df_greek],axis=1).fillna(0).round(4)
+def get_greeks_vol(df_St, K_list, CP, r=0.01045, sigma=[0.3], TTE=1, conversion=1):
+    df_greek = pd.DataFrame(index = df_St.index,columns=["A_Price","A_Delta","A_Gamma","A_Vega", "A_Theta",
+                                     "B_Price","B_Delta","B_Gamma","B_Vega", "B_Theta",
+                                     "C_Price","C_Delta","C_Gamma","C_Vega", "C_Theta"])
+
+    for i in range(len(df_St)):
+        option=[]
+        for x in range(len(CP)):
+            c = call(df_St["St"].iloc[i], K_list[x], r, sigma[i], df_St["T-t"].iloc[i])
+            p = put(df_St["St"].iloc[i], K_list[x], r, sigma[i], df_St["T-t"].iloc[i])
+            if CP[x] == "Long Call" or CP[x] == "Call":
+                option.append( np.hstack([c.price, c.greek]) )
+            elif CP[x] == "Long Put" or CP[x] == "Put":
+                option.append( np.hstack([p.price, p.greek]) )
+            elif CP[x] == "Short Call":
+                option.append( np.hstack([c.price, c.greek*-1]) )
+            elif CP[x] == "Short Put":
+                option.append( np.hstack([p.price, p.greek*-1]) )
+        
+        df_greek.iloc[i] = np.hstack([option[0], option[1], option[2]]) *conversion     
+    
+    return pd.concat([df_St[["St","T-t","HV","A_Close","A_IV","B_Settlement Price","B_IV"]], df_greek],axis=1).fillna(0).round(8)
 
 # === Simulate Stock Price(Future) ===
 def get_GBM_St(steps=20, r=0.05, sigma=0.3, T=1):
