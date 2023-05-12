@@ -30,7 +30,7 @@ TAIEX  = pd.read_csv("data/TAIEX_noadj_201912-202006.csv", index_col="Date")
 tab1, tab2 = c1.tabs(["📈 TAIEX Chart", "📚 TAIEX Data"])
 TAIEX["K"] = 10000
 fig = px.line(TAIEX.loc["2019-12-18":"2020-05-31"].round(2), y=["Close","K"], 
-              title="TAIEX 2020年3-5月收盤價 ", height=400, template="plotly_white").update_layout(showlegend=True)
+              title="TAIEX 2020年1-6月收盤價 ", height=400, template="plotly_white").update_layout(showlegend=True)
 fig.update_layout(legend=dict( orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
 tab1.plotly_chart(fig, use_container_width=True)
 tab2.dataframe(TAIEX)
@@ -39,7 +39,7 @@ tab2.dataframe(TAIEX)
 HuaNanPut  = pd.read_csv("data/股指永昌P_close.csv", index_col="Date")
 tab1, tab2 = c2.tabs(["📈 收盤價Chart", "📚 收盤價Data"])
 fig = px.line(HuaNanPut.loc["2019-12-18":"2020-05-31"].round(2), y=["臺股指永昌96售03","臺股指永昌96售04","臺股指永昌96售05","臺股指永昌96售06","臺股指永昌96售07"], 
-              title="華南永昌2020年3-5月認售權證(PUT)收盤價", height=400, template="plotly_white").update_layout(showlegend=True)
+              title="華南永昌2020年1-6月認售權證(PUT)收盤價", height=400, template="plotly_white").update_layout(showlegend=True)
 tab1.plotly_chart(fig, use_container_width=True)
 tab2.dataframe(HuaNanPut)
 
@@ -210,12 +210,12 @@ df_mix = pd.concat([df_delta[["A部位損益","總損益"]], df_gamma[["總損�
 df_mix.columns =  ["No Hedging","Delta Hedging","Delta-Gamma Hedging"]
 fig = px.line(df_mix,
               title="Delta避險損益、Delta-Gamma避險損益", height=400, width=700, template="plotly_white").update_layout(showlegend=True)
-tab1.plotly_chart(fig, use_container_width=False)
+c1, c2 = tab1.columns([1,1], gap="small")
+c1.plotly_chart(fig, use_container_width=False)
+summary = pd.DataFrame([[df_delta["A部位損益"].iloc[-1], round(df_delta["A部位損益"].std(),2)],
+                        [df_delta["總損益"].iloc[-1], round( df_delta["總損益"].std(),2)],
+                        [df_gamma["總損益"].iloc[-1], round( df_gamma["總損益"].std(),2)]], columns=["最終總損益","總損益的標準差"], index=["不避險","Delta避險","Delta-Gamma避險"])
+c2.dataframe(summary)
 tab2.dataframe(df_mix)
-tab3.markdown("最終總損益"+str(df_delta["總損益"].iloc[-1]))
 tab3.dataframe(df_delta)
-tab4.markdown("最終總損益"+str(df_gamma["總損益"].iloc[-1]))
 tab4.dataframe(df_gamma)
-st.markdown( "Delta總損益的標準差:  "+ str(round( df_delta["總損益"].std(),2)) )
-st.markdown( "Delta-Gamma總損益的標準差:  "+str(round( df_gamma["總損益"].std(),2) ))
-st.markdown( "不避險的標準差:  "+ str(round(df_gamma["A部位損益"].std(),2) ))

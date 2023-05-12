@@ -24,14 +24,7 @@ st.set_page_config(
 S0 = 50 # initial stock price
 quantity = 100 # brokerage sales quantity ex. 100=賣100個
 
-# 打開網頁時，隨機跑一個股價 ==============================================================================
-if 'openweb' not in st.session_state:
-    st.session_state.openweb = True
-    df_St = bsmodel.get_GBM_St()
-    st.session_state.df_St = df_St
-    print("=== START ===")
-
-# 側邊 sidebar ==============================================================================
+#%% === 側邊 sidebar ===
 with st.sidebar:
     st.markdown("**GBM模型模擬股價的參數**")
     steps_input = st.number_input("**steps =**", min_value=10,max_value=70,value=20)
@@ -45,9 +38,14 @@ with st.sidebar:
         st.session_state.df_St = df_St # 暫存df
     st.markdown("此頁的股價產生方式為根據GBM模型隨機產生，每次點選網頁左側的[Simulate St]按鈕，即會根據所選參數產生新的隨機股價。")
 
-# ==============================================================================
+#%% === 打開網頁時，隨機跑一個股價 ===
+if 'openweb' not in st.session_state:
+    st.session_state.openweb = True
+    df_St = bsmodel.get_GBM_St(steps=steps_input, r=r_input, sigma=sigma_input, T=T_input)
+    st.session_state.df_St = df_St
+    print("=== START ===")
 
-
+#%% 
 st.header("績效指標")
 st.markdown("券商賣100個單位的選擇權，參數可調整的僅有履約價(K)、Type、Sell Price，其餘皆跟隨網頁左側的GBM模型參數。")
 st.markdown("**S0 =** $50")
@@ -70,8 +68,7 @@ st.info(f"""目前參數:　　:red[S0]={S0},　　:red[K]={K_A},　　:red[r]={
         \n 　　　　　　:red[type]={CP_A},　　:red[sell price]={sell_price}""")
 
 
-df_price = bsmodel.get_greeks(st.session_state.df_St, K_list=[K_A,K_B,K_C], CP = [CP_A, CP_B, CP_C])   
-
+df_price = bsmodel.get_greeks(st.session_state.df_St, K_list=[K_A,K_B,K_C], CP = [CP_A, CP_B, CP_C], r=r_input, sigma=sigma_input, T=T_input)   
 c1, c2 = st.columns(2, gap="large")
 with c1:
     st.image("table19.4.png")
@@ -101,7 +98,7 @@ my_bar = st.progress(0, text=progress_text)
 for i in range(numberOfSims):
     my_bar.progress((i + 1)/numberOfSims, text=progress_text)
     df_St = bsmodel.get_GBM_St(steps=steps_input, r=r_input, sigma=sigma_input, T=T_input)
-    df_price = bsmodel.get_greeks(df_St, K_list=[K_A,K_B,K_C], CP = [CP_A, CP_B, CP_C])  
+    df_price = bsmodel.get_greeks(df_St, K_list=[K_A,K_B,K_C], CP = [CP_A, CP_B, CP_C], r=r_input, sigma=sigma_input, T=T_input)  
     df_delta = bsmodel.get_delta_hedge(df_price, r_input, sigma_input, T_input, sell_price)
     df_delta20 = bsmodel.get_delta_hedge_2week(df_price, freq=20, r=r_input, sigma=sigma_input, T=T_input, sell_price=sell_price) 
     df_gamma =  bsmodel.get_gamma_hedge(df_price, r_input, sigma_input, T_input, sell_price)
@@ -150,7 +147,7 @@ tab1, tab2 = st.tabs(["📈 Chart", "📚 Data-損益"])
 c1, c2, c3 = tab1.columns([3,3,2], gap="medium")
 with c1:
     fig = px.line(df_nohedge_monte, title="不避險損益", \
-               labels={"index":"t", "value":"profit", "variable":"路徑"}, height=400, template="plotly_white", color_discrete_sequence=["#636EFA","#6CB7DA","#61A2DA","#4368B6"]).update_layout(showlegend=False)
+               labels={"index":"t", "value":"profit", "variable":"路徑"}, height=400, template="plotly_white").update_layout(showlegend=False)
     st.plotly_chart(fig, use_container_width=True)
 with c2:
     fig = px.histogram(y=df_nohedge_monte.loc[20], title="不避險 期末避險損益分布圖", \
