@@ -163,3 +163,16 @@ st.header("Portfolio value")
 st.latex(r"""
     \Delta \Pi = \theta {\Delta t} + \frac{1}{2} \Gamma \Delta S^2 
 """)
+
+deltat = 1/52
+T_total_steps = 20/52
+n = 100
+S0=49
+x = np.linspace(30, 70, n) 
+Acall = bsmodel.call( S0, K_A, 0.05, 0.2, T_total_steps)
+
+y = np.ones(len(x))*Acall.theta * deltat + 1/2 * np.ones(len(x))*Acall.gamma * (x-S0)**2
+
+
+fig = px.line(x=x, y=y, title="△Π", height=300, width=400, template="plotly_white")#.update_layout(showlegend=False)
+st.plotly_chart(fig)

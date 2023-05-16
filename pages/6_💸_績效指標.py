@@ -12,6 +12,7 @@ from scipy import log,exp,sqrt,stats
 from scipy.stats import norm
 import random
 from myfunction import bsmodel
+from myfunction import hedging
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -97,12 +98,12 @@ progress_text = "蒙特卡羅模擬正在進行中，請稍候..."
 my_bar = st.progress(0, text=progress_text)
 for i in range(numberOfSims):
     my_bar.progress((i + 1)/numberOfSims, text=progress_text)
-    df_St = bsmodel.get_GBM_St(steps=steps_input, r=r_input, sigma=sigma_input, T=T_input)
-    df_price = bsmodel.get_greeks(df_St, K_list=[K_A,K_B,K_C], CP = [CP_A, CP_B, CP_C], r=r_input, sigma=sigma_input, T=T_input)  
-    df_delta = bsmodel.get_delta_hedge(df_price, r_input, sigma_input, T_input, sell_price)
-    df_delta20 = bsmodel.get_delta_hedge_2week(df_price, freq=20, r=r_input, sigma=sigma_input, T=T_input, sell_price=sell_price) 
-    df_gamma =  bsmodel.get_gamma_hedge(df_price, r_input, sigma_input, T_input, sell_price)
-    df_gamma2 =  bsmodel.get_gamma_hedge_v2(df_price, r_input, sigma_input, T_input, sell_price)
+    df_St = hedging.get_GBM_St(steps=steps_input, r=r_input, sigma=sigma_input, T=T_input)
+    df_price = hedging.get_greeks(df_St, K_list=[K_A,K_B,K_C], CP = [CP_A, CP_B, CP_C], r=r_input, sigma=sigma_input, T=T_input)  
+    df_delta = hedging.get_delta_hedge(df_price, r_input, sigma_input, T_input, sell_price)
+    df_delta20 = hedging.get_delta_hedge_2week(df_price, freq=20, r=r_input, sigma=sigma_input, T=T_input, sell_price=sell_price) 
+    df_gamma =  hedging.get_gamma_hedge(df_price, r_input, sigma_input, T_input, sell_price)
+    df_gamma2 =  hedging.get_gamma_hedge_v2(df_price, r_input, sigma_input, T_input, sell_price)
 
     df_nohedge_monte = pd.concat([df_nohedge_monte, df_delta["A部位損益"]], axis=1).reset_index(drop=True)
     df_delta_monte = pd.concat([df_delta_monte, df_delta["總損益"]], axis=1).reset_index(drop=True)

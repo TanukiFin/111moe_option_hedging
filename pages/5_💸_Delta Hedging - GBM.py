@@ -12,6 +12,7 @@ from scipy import log,exp,sqrt,stats
 from scipy.stats import norm
 import random
 from myfunction import bsmodel
+from myfunction import hedging
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -90,11 +91,11 @@ c2.plotly_chart(fig, use_container_width=True)
 tab2.dataframe(df_price[["t","St","A_Price","A_Delta","A_Gamma","B_Price","B_Delta","B_Gamma" ]])
 
 #%% === D區: 損益圖Delta避險 ===
-df_delta = bsmodel.get_delta_hedge(df_price, r_input, sigma_input, T_input, sell_price)
-df_delta2 = bsmodel.get_delta_hedge_2week(df_price, freq=2, r=r_input, sigma=sigma_input, T=T_input, sell_price=sell_price)
-df_delta5 = bsmodel.get_delta_hedge_2week(df_price, freq=5, r=r_input, sigma=sigma_input, T=T_input, sell_price=sell_price)
-df_delta10 = bsmodel.get_delta_hedge_2week(df_price, freq=10, r=r_input, sigma=sigma_input, T=T_input, sell_price=sell_price)
-df_delta20 = bsmodel.get_delta_hedge_2week(df_price, freq=20, r=r_input, sigma=sigma_input, T=T_input, sell_price=sell_price)
+df_delta = hedging.get_delta_hedge(df_price, r_input, sigma_input, T_input, sell_price)
+df_delta2 = hedging.get_delta_hedge_2week(df_price, freq=2, r=r_input, sigma=sigma_input, T=T_input, sell_price=sell_price)
+df_delta5 = hedging.get_delta_hedge_2week(df_price, freq=5, r=r_input, sigma=sigma_input, T=T_input, sell_price=sell_price)
+df_delta10 = hedging.get_delta_hedge_2week(df_price, freq=10, r=r_input, sigma=sigma_input, T=T_input, sell_price=sell_price)
+df_delta20 = hedging.get_delta_hedge_2week(df_price, freq=20, r=r_input, sigma=sigma_input, T=T_input, sell_price=sell_price)
 
 df_all_hedge = df_delta[["t"]]
 df_all_hedge = pd.concat([df_all_hedge,df_delta["A部位損益"],df_delta["總損益"],df_delta2["總損益"],

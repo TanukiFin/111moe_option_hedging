@@ -10,6 +10,7 @@ from scipy import log,exp,sqrt,stats
 from scipy.stats import norm
 import random
 from myfunction import bsmodel
+from myfunction import hedging
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -106,9 +107,9 @@ tab2.dataframe(df_price[["t","St","A_Price","A_Delta","A_Gamma","A_Vega","B_Pric
 #%% === D區: 損益圖Delta、Delta-Gamma、Delta-Gamma-Vega避險 ===
 tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data"])
 c1, c2 = tab1.columns([2,1], gap="large")
-df_delta = bsmodel.get_delta_hedge(df_price, r_input, sigma_input, T_input, sell_price)
-df_gamma = bsmodel.get_gamma_hedge(df_price, r_input, sigma_input, T_input, sell_price)
-df_vega = bsmodel.get_vega_hedge(df_price, r_input, sigma_input, T_input, sell_price)
+df_delta = hedging.get_delta_hedge(df_price, r_input, sigma_input, T_input, sell_price)
+df_gamma = hedging.get_gamma_hedge(df_price, r_input, sigma_input, T_input, sell_price)
+df_vega = hedging.get_vega_hedge(df_price, r_input, sigma_input, T_input, sell_price)
 
 df_all_hedge = df_delta[["t"]]
 df_all_hedge = pd.concat([df_all_hedge, df_delta["A部位損益"], df_delta["總損益"],df_gamma["總損益"], df_vega["總損益"]], axis=1)

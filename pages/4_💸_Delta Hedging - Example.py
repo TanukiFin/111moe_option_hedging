@@ -12,6 +12,7 @@ from scipy import log,exp,sqrt,stats
 from scipy.stats import norm
 import random
 from myfunction import bsmodel
+from myfunction import hedging
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -95,11 +96,11 @@ c2.plotly_chart(fig, use_container_width=True)
 tab2.dataframe(df_price[["t","St","A_Price","A_Delta","A_Gamma","B_Price","B_Delta","B_Gamma" ]])
 
 #%% === D區: 損益圖Delta避險 ===
-df_delta = bsmodel.get_delta_hedge(df_price, r, sigma, T, sell_price)
-df_delta2 = bsmodel.get_delta_hedge_2week(df_price, freq=2, r=r, sigma=sigma, T=T, sell_price=sell_price)
-df_delta5 = bsmodel.get_delta_hedge_2week(df_price, freq=5, r=r, sigma=sigma, T=T, sell_price=sell_price)
-df_delta10 = bsmodel.get_delta_hedge_2week(df_price, freq=10, r=r, sigma=sigma, T=T, sell_price=sell_price)
-df_delta20 = bsmodel.get_delta_hedge_2week(df_price, freq=20, r=r, sigma=sigma, T=T, sell_price=sell_price)
+df_delta = hedging.get_delta_hedge(df_price, r, sigma, T, sell_price)
+df_delta2 = hedging.get_delta_hedge_2week(df_price, freq=2, r=r, sigma=sigma, T=T, sell_price=sell_price)
+df_delta5 = hedging.get_delta_hedge_2week(df_price, freq=5, r=r, sigma=sigma, T=T, sell_price=sell_price)
+df_delta10 = hedging.get_delta_hedge_2week(df_price, freq=10, r=r, sigma=sigma, T=T, sell_price=sell_price)
+df_delta20 = hedging.get_delta_hedge_2week(df_price, freq=20, r=r, sigma=sigma, T=T, sell_price=sell_price)
 df_all_hedge = pd.DataFrame()
 df_all_hedge["t"] = df_delta["t"]
 df_all_hedge = pd.concat([df_all_hedge,df_delta["A部位損益"],df_delta["總損益"],df_delta2["總損益"],
@@ -165,7 +166,7 @@ tab2.plotly_chart(fig)
 
 
 #%% === E區: 損益圖Delta、Delta-Gamma避險 ===
-df_gamma = bsmodel.get_gamma_hedge(df_price, r, sigma, T, sell_price)
+df_gamma = hedging.get_gamma_hedge(df_price, r, sigma, T, sell_price)
 cname = ["No Hedging","Delta Hedging","Delta-Gamma Hedging"]
 df_all_hedge = pd.DataFrame()
 df_all_hedge["t"] = df_delta["t"]
@@ -176,14 +177,14 @@ fig1 = px.line(df_all_hedge.round(2), x="t", y=cname, title="Delta、Delta-Gamma
                labels={"value":"profit"},height=400, width=700, template="plotly_white")
 fig2 = px.line(df_gamma.round(2), x="t", y=["A部位損益","B部位損益","現貨部位損益","總損益"], title="Delta-Gamma避險", \
                labels={"value":"profit"},height=400, width=700, template="plotly_white") 
-tab1, tab2, tab3 = st.tabs(["📈 Delta、Delta-Gamma避險比較", "📈 各部位損益","📚 Data"])
+tab1, tab2, tab3 = st.tabs(["📈 Delta、Delta-Gamma避險比較", "📈 Delta-Gamma各部位損益","📚 Data"])
 tab1.plotly_chart(fig1)
 tab2.plotly_chart(fig2)
 tab3.dataframe(df_gamma)
 
 #%% === F區: v2損益圖Delta、Delta-Gamma避險 ===
 #st.markdown("delta-gamma v2")
-df_gamma2 = bsmodel.get_gamma_hedge_v2(df_price, r, sigma, T, sell_price)
+df_gamma2 = hedging.get_gamma_hedge_v2(df_price, r, sigma, T, sell_price)
 cname = ["No Hedging","Delta Hedging","Delta-Gamma Hedging"]
 df_all_hedge = pd.DataFrame()
 df_all_hedge["t"] = df_delta["t"]
