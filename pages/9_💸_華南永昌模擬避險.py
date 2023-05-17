@@ -87,8 +87,8 @@ df_mix = pd.concat([df_delta[["A部位損益","總損益"]], df_gamma[["總損�
 df_mix.columns =  ["No Hedging","Delta Hedging","Delta-Gamma Hedging"]
 fig = px.line(df_mix,
               title="Delta避險損益、Delta-Gamma避險損益", height=400, width=700, template="plotly_white").update_layout(showlegend=True)
-c1, c2 = tab1.columns([1,1], gap="small")
-c1.plotly_chart(fig, use_container_width=False)
+c1, c2 = tab1.columns([2,1], gap="small")
+c1.plotly_chart(fig, use_container_width=True)
 summary = pd.DataFrame([[df_delta["A部位損益"].iloc[-1], round(df_delta["A部位損益"].std(),2)],
                         [df_delta["總損益"].iloc[-1], round( df_delta["總損益"].std(),2)],
                         [df_gamma["總損益"].iloc[-1], round( df_gamma["總損益"].std(),2)]], columns=["最終總損益","總損益的標準差"], index=["不避險","Delta避險","Delta-Gamma避險"])

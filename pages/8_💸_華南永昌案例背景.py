@@ -106,7 +106,7 @@ df_price = bsmodel.get_greeks_vol(df_St, [10000,9600,10000], ["Short Put","Long 
 tab1, tab2, tab3, tab4 = st.tabs(["📈 Charts", "📚 Data", "📚 3", "📚 4"])
 warrent  = pd.read_csv("data/93-96權證.csv")
 warrent["日期"] = pd.to_datetime(warrent["日期"])
-
+warrent["名稱"] = warrent["名稱"]+" "+warrent["履約價(元)"].apply(int).apply(str)
 
 
 # 選券商
@@ -114,35 +114,48 @@ tab1.markdown("**券商:**")
 brokers =  warrent.groupby("券商").count().index
 col_brokers = tab1.columns(len(brokers))
 chosen_brokers = []
-for bIndex in range(len(brokers)):
-    if  col_brokers[bIndex].checkbox(label=brokers[bIndex], value=False):
-        chosen_brokers.append(brokers[bIndex])
+for bIdx in range(len(brokers)):
+    if (bIdx==1) or (bIdx==4) or (bIdx==10) or (bIdx==13):  # 預設3券商、永昌
+        if col_brokers[bIdx].checkbox(label=brokers[bIdx], value=True):
+            chosen_brokers.append(brokers[bIdx])
+    else:
+        if col_brokers[bIdx].checkbox(label=brokers[bIdx], value=False):
+            chosen_brokers.append(brokers[bIdx])
 # 選到期月份
 tab1.markdown("**到期月份:**")
 maturity = warrent.groupby("到期月份").count().index
 col_maturity = tab1.columns(len(maturity))
 chosen_maturity = []
-for mIndex in range(len(maturity)):
-    if col_maturity[mIndex].checkbox(label=maturity[mIndex], value=False):
-        chosen_maturity.append(maturity[mIndex])
-# 選名稱
+for mIdx in range(len(maturity)): 
+    if mIdx == 5:   # 預設6月到期
+        if col_maturity[mIdx].checkbox(label=maturity[mIdx], value=True):
+            chosen_maturity.append(maturity[mIdx])
+        
+    else:
+        if col_maturity[mIdx].checkbox(label=maturity[mIdx], value=False):
+            chosen_maturity.append(maturity[mIdx])
 
+
+# 選名稱
 filt = warrent[warrent["券商"].isin(chosen_brokers)&warrent["到期月份"].isin(chosen_maturity)]
 names = filt.groupby("名稱").count().index
-chosen_warrent = tab1.multiselect(
-    '**權證:**', names)
-tab2.dataframe(filt)
+chosen_warrent = tab1.multiselect( "**權證:**", names, default=["臺股指永昌96售04 10000","臺股指凱基96售08 10000","臺股指群益96售02 10000","臺股指元大96售03 10400"])
+
 c1, c2 = tab1.columns(2)
 try:
-    fig1 = make_subplots(rows=len(chosen_warrent), cols=1)
-    fig2 = make_subplots(rows=len(chosen_warrent), cols=1)
+    fig1 = make_subplots(rows=1, cols=1)
+    fig2 = make_subplots(rows=1, cols=1)
+    fig3 = make_subplots(rows=1, cols=1)
     for windex in range(len(chosen_warrent)):
         df = warrent[warrent["名稱"]==chosen_warrent[windex]]
         fig1.add_trace(  go.Line(x=df["日期"], y=df["權證收盤價(元)"], name=chosen_warrent[windex]),  row=1, col=1  )  
         fig2.add_trace(  go.Line(x=df["日期"], y=df["權證收盤價(元)"]/df["權證收盤價(元)"].iloc[0], name=chosen_warrent[windex]),  row=1, col=1  )  
-    fig1.update_layout( title="權證收盤價", yaxis=dict(title="收盤價"), height=400*len(chosen_warrent), width=1000, showlegend=True, template="plotly_white",
+        fig3.add_scatter(x=df["日期"], y=df["隱含波動"],  name=chosen_warrent[windex])
+    fig1.update_layout( title="權證收盤價", yaxis=dict(title="收盤價"), height=400, width=1000, showlegend=True, template="plotly_white",
                        legend=dict( orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
-    fig2.update_layout( title="權證收盤價(百分比)", yaxis=dict(title="百分比"), height=400*len(chosen_warrent), width=1000, showlegend=True, template="plotly_white",
+    fig2.update_layout( title="權證收盤價(百分比)", yaxis=dict(title="百分比"), height=400, width=1000, showlegend=True, template="plotly_white",
+                       legend=dict( orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+    fig3.update_layout( title="隱含波動", yaxis=dict(title="%"), height=400, width=1000, showlegend=True, template="plotly_white",
                        legend=dict( orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
     c1.plotly_chart(fig1, use_container_width=True)
     c2.plotly_chart(fig2, use_container_width=True)
@@ -150,3 +163,6 @@ except:
     print("ERORRRRRRRR")
     tab1.text("...請選擇權證產生收盤價線圖")
     pass
+tab2.dataframe(warrent[warrent["名稱"].isin(chosen_warrent)])
+st.plotly_chart(fig3, use_container_width=True)
+
