@@ -170,10 +170,10 @@ def run_monte():
                 labels={"value":"profit at t=T"}, nbins=40, height=400, template="plotly_white").update_layout(showlegend=False)
 
     # 圖5: delta-gamma v2
-    st.session_state.fig5_1 = px.line(st.session_state.df_gamma2_monte, title="Delta-Gamma v2 避險損益", \
-                labels={"index":"t", "value":"profit", "variable":"路徑"}, height=400, template="plotly_white").update_layout(showlegend=False)
-    st.session_state.fig5_2 = px.histogram(y=st.session_state.df_gamma2_monte.loc[20], title="Delta-Gamma v2 期末避險損益分布圖", \
-                labels={"value":"profit at t=T"}, nbins=40, height=400, template="plotly_white").update_layout(showlegend=False)
+    #st.session_state.fig5_1 = px.line(st.session_state.df_gamma2_monte, title="Delta-Gamma v2 避險損益", \
+    #            labels={"index":"t", "value":"profit", "variable":"路徑"}, height=400, template="plotly_white").update_layout(showlegend=False)
+    #st.session_state.fig5_2 = px.histogram(y=st.session_state.df_gamma2_monte.loc[20], title="Delta-Gamma v2 期末避險損益分布圖", \
+    #            labels={"value":"profit at t=T"}, nbins=40, height=400, template="plotly_white").update_layout(showlegend=False)
 
 
     # 圖6統整圖: 避險成本分布比較
