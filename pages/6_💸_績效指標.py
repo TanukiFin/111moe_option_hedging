@@ -253,18 +253,18 @@ if 'fig1_1' in st.session_state:
     tab2.markdown("columns=路徑, index=t")
     tab2.dataframe(st.session_state.df_gamma_monte)
     # 圖5: delta-gamma v2
-    tab1, tab2 = st.tabs(["📈 Chart", "📚 Data-損益"])
-    c1, c2, c3 = tab1.columns([3,3,2], gap="medium")
-    c1.plotly_chart(st.session_state.fig5_1, use_container_width=True)
-    c2.plotly_chart(st.session_state.fig5_2, use_container_width=True)
-    with c3:
-        st.metric(label="避險成本的績效指標: SD of cost / Option Value", value=round(np.std(st.session_state.all_gamma2_cost)/option_value,4))
-        st.metric(label="避險成本的平均: average(cost)", value=round(np.average(st.session_state.all_gamma2_cost),4))
-        st.markdown("---")
-        st.metric(label="避險損益的績效指標: SD of profit / Option Value", value=round(st.session_state.df_gamma2_monte.loc[20].std()/option_value,4))
-        st.metric(label="避險損益的平均: average(cost)", value=round(st.session_state.df_gamma2_monte.loc[20].mean(),4))
-    tab2.markdown("columns=路徑, index=t")
-    tab2.dataframe(st.session_state.df_gamma2_monte)
+    #tab1, tab2 = st.tabs(["📈 Chart", "📚 Data-損益"])
+    #c1, c2, c3 = tab1.columns([3,3,2], gap="medium")
+    #c1.plotly_chart(st.session_state.fig5_1, use_container_width=True)
+    #c2.plotly_chart(st.session_state.fig5_2, use_container_width=True)
+    #with c3:
+    #    st.metric(label="避險成本的績效指標: SD of cost / Option Value", value=round(np.std(st.session_state.all_gamma2_cost)/option_value,4))
+    #    st.metric(label="避險成本的平均: average(cost)", value=round(np.average(st.session_state.all_gamma2_cost),4))
+    #    st.markdown("---")
+    #    st.metric(label="避險損益的績效指標: SD of profit / Option Value", value=round(st.session_state.df_gamma2_monte.loc[20].std()/option_value,4))
+    #    st.metric(label="避險損益的平均: average(cost)", value=round(st.session_state.df_gamma2_monte.loc[20].mean(),4))
+    #tab2.markdown("columns=路徑, index=t")
+    #tab2.dataframe(st.session_state.df_gamma2_monte)
 
 
     # 6
