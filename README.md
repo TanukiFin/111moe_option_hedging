@@ -11,3 +11,50 @@ Streamlit中文教學
 
 部署應用程式
 [LINK](https://blog.jiatool.com/posts/streamlit/)
+
+
+```
+streamlit run Home.py
+```
+
+* Home.py 首頁
+* data 放置各式所需的數據，csv檔
+* pictures 放置各式所需的圖片，png檔
+* pages 其他各頁面
+ 
+  ![image](https://github.com/TanukiFin/option_hedging/assets/73293068/276db6bb-f8ed-4625-8693-764b23f170d9)
+
+* myfunction 自己編寫的funtion，方便pages各頁面使用
+  * bsmodel.py
+    <div align="left">
+
+    | name  | 說明 | input | output |
+    | ---------- | -----------| ---------- | -----------|
+    | call  | class   | S, K, r, sigma, T | price, delta, gamma, vega, theta, greek   |
+    | put   | class   | S, K, r, sigma, T | price, delta, gamma, vega, theta, greek   |
+    | get_greeks   | function   | df_St, K_list, CP, r=0.05, sigma=0.3, T=1, steps=20 |   |
+    | get_GBM_St   | function   | steps=20, r=0.05, sigma=0.3, T=1 |  |
+    | get_default_St   | function   | St_sce, r=0.05, sigma=0.3, T=1, steps=20 | |
+
+    </div>
+    
+  * hedging.py
+    <div align="left">
+
+    | name  | 說明 | input | output |
+    | ---------- | -----------| ---------- | -----------|
+    | get_delta_hedge  | function Delta避險   | df_price, r=0.05, sigma=0.3, T=1, sell_price=3 |  df  |
+    | get_delta_hedge_2week   | function Delta不同頻率避險   | df_price, freq=2, r=0.05, sigma=0.3, T=1, sell_price=3 |  df  |
+    | get_gamma_hedge   | function Delta-Gamma避險   | df_price, r=0.05, sigma=0.3, T=1, sell_price=3 | df  |
+    | get_vega_hedge   | function  Delta-Gamma-Vega避險  | df_price, r=0.05, sigma=0.3, T=1, sell_price=3 | df |
+
+    </div>
+
+<div align="left">
+
+| name  | 說明 | input | output |
+| ---------- | -----------| ---------- | -----------|
+| call  | class   | S, K, r, sigma, T | price, delta, gamma, vega, theta, greek   |
+| put   | class   | S, K, r, sigma, T | price, delta, gamma, vega, theta, greek   |
+
+</div>
