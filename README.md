@@ -12,10 +12,12 @@ Streamlit中文教學
 部署應用程式
 [LINK](https://blog.jiatool.com/posts/streamlit/)
 
-
+# 本地啟動
 ```
 streamlit run Home.py
 ```
+
+# 檔案說明
 
 * Home.py 首頁
 * data 放置各式所需的數據，csv檔
@@ -49,12 +51,3 @@ streamlit run Home.py
     | get_vega_hedge   | function  Delta-Gamma-Vega避險  | df_price, r=0.05, sigma=0.3, T=1, sell_price=3 | df |
 
     </div>
-
-<div align="left">
-
-| name  | 說明 | input | output |
-| ---------- | -----------| ---------- | -----------|
-| call  | class   | S, K, r, sigma, T | price, delta, gamma, vega, theta, greek   |
-| put   | class   | S, K, r, sigma, T | price, delta, gamma, vega, theta, greek   |
-
-</div>
