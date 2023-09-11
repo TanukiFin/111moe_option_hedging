@@ -13,7 +13,8 @@ streamlit run Home.py
 * pictures 放置各式所需的圖片，png檔
 * pages 其他各頁面
  
-  ![image](https://github.com/TanukiFin/option_hedging/assets/73293068/276db6bb-f8ed-4625-8693-764b23f170d9)
+![image](https://github.com/TanukiFin/111moe_option_hedging/assets/73293068/a0b7b30c-976b-4997-9ac1-b686b76a1afd)
+
 
 * myfunction 自己編寫的funtion，方便pages各頁面使用
   * bsmodel.py
