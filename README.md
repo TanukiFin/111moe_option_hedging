@@ -15,6 +15,7 @@ streamlit run Home.py
  
 ![image](https://github.com/TanukiFin/111moe_option_hedging/assets/73293068/a0b7b30c-976b-4997-9ac1-b686b76a1afd)
 
+<div align="left">
     | 頁碼  | 名稱 | 內容 | 
     | ---------- | -----------| ---------- | 
     | 1  | class   | 觀察隨著時間t、股價St變化，Greeks的變化 |
@@ -24,6 +25,7 @@ streamlit run Home.py
     | 5   | Delta-Gamma Hedging   | 隨機模擬一條股價路徑，調整避險B選擇權的參數，觀察Delta-Gamma避險結果 |
    | 6   | 華南永昌案例背景   | 當時市場情況的數據 |
    | 7   | 華南永昌模擬避險   | 模擬Delta、Delta-Gamma避險產生的結果 |
+</div>
 
 * myfunction 自己編寫的funtion，方便pages各頁面使用
   * bsmodel.py
