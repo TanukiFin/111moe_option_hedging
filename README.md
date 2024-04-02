@@ -1,5 +1,6 @@
 
 https://ntustfinance-option-hedging.streamlit.app/
+* 若發生錯誤，可嘗試重整同一頁面
 
 # 本地啟動
 ```
