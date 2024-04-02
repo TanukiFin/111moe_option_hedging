@@ -19,7 +19,7 @@ streamlit run Home.py
    
   | 頁碼  | 名稱 | 內容 | 
   | ---------- | -----------| ---------- | 
-  | 1  | class   | 觀察隨著時間t、股價St變化，Greeks的變化 |
+  | 1  | Greek Letters  | 觀察隨著時間t、股價St變化，Greeks的變化 |
   | 2   | Delta Hedging - Example   | 透過預設的股價情境，觀察不同避險方式的結果 |
   | 3   | Delta Hedging - GBM   | 隨機模擬一條股價路徑，觀察不同避險方式的結果 | 
   | 4   | 績效指標   | 隨機多條股價路徑，觀察不同避險方式的統計結果(平均、標準差等) | 
