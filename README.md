@@ -35,10 +35,12 @@ streamlit run Home.py
 
     | name  | 說明 | input | output |
     | ---------- | -----------| ---------- | -----------|
-    | get_delta_hedge  | function Delta避險   | df_price, r=0.05, sigma=0.3, T=1, sell_price=3 |  df  |
-    | get_delta_hedge_2week   | function Delta不同頻率避險   | df_price, freq=2, r=0.05, sigma=0.3, T=1, sell_price=3 |  df  |
-    | get_gamma_hedge   | function Delta-Gamma避險   | df_price, r=0.05, sigma=0.3, T=1, sell_price=3 | df  |
-    | get_vega_hedge   | function  Delta-Gamma-Vega避險  | df_price, r=0.05, sigma=0.3, T=1, sell_price=3 | df |
+    | get_delta_hedge  | Delta避險   | df_price, r=0.05, sigma=0.3, T=1, sell_price=3 |  df  |
+    | get_delta_hedge_2week   | Delta不同頻率避險   | df_price, freq=2, r=0.05, sigma=0.3, T=1, sell_price=3 |  df  |
+    | get_gamma_hedge   | Delta-Gamma避險   | df_price, r=0.05, sigma=0.3, T=1, sell_price=3 | df  |
+    | get_vega_hedge   | Delta-Gamma-Vega避險  | df_price, r=0.05, sigma=0.3, T=1, sell_price=3 | df |
+    |get_warrent_delta_hedge| 華南永昌權證的Delta避險|df_price|df|
+    |get_warrent_gamma_hedge| 華南永昌權證的Delta-Gamma避險|df_price|df|
 
     </div>
 
