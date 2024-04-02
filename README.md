@@ -38,9 +38,9 @@ streamlit run Home.py
     | call  | class   | S, K, r, sigma, T | price, delta, gamma, vega, theta, greek   | |
     | put   | class   | S, K, r, sigma, T | price, delta, gamma, vega, theta, greek   | |
     | get_greeks   | function   | df_St, K_list, CP, r=0.05, sigma=0.3, T=1, steps=20 | A、B、C三個選擇權的Delta、Gamma、Vega、Theta | 模擬資料使用(p1~5) |
-    | get_greeks_vol  | function   | df_St, K_list, CP, r=0.05, sigma=0.3, T=1, steps=20 |   |可調整sigma，華南永昌案例使用(6,7)  |
-    | get_GBM_St   | function   | steps=20, r=0.05, sigma=0.3, T=1 |  | |
-    | get_default_St   | function   | St_sce, r=0.05, sigma=0.3, T=1, steps=20 | | |
+    | get_greeks_vol  | function   | df_St, K_list, CP, r=0.05, sigma=0.3, T=1, steps=20 |  A、B、C三個選擇權的Delta、Gamma、Vega、Theta |可調整sigma，華南永昌案例使用(6,7)  |
+    | get_GBM_St   | function   | steps=20, r=0.05, sigma=0.3, T=1 | t, St | 根據輸入參數，用GBM模型隨機模擬股價|
+    | get_default_St   | function   | St_sce, T=1, steps=20 | t, St  | 選擇情境，返回預設好的股價 |
 
     </div>
     
