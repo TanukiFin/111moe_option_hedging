@@ -24,15 +24,28 @@ st.set_page_config(
 )
 st.header("華南永昌模擬避險")
 
+
+warrent  = pd.read_csv("data/權證日交易資料.csv")
+warrent["日期"] = pd.to_datetime(warrent["日期"])
+warrent["名稱"] = warrent["名稱"]+" "+warrent["履約價(元)"].apply(int).apply(str)
+filt = warrent[ warrent["履約價(元)"].isin([10000]) & warrent["到期月份"].isin(["96","97","98"]) ]
+names = filt.groupby("名稱").count().index
+
+TXO  = pd.read_csv("data/TXO日交易資料.csv")
+TXO_names = TXO.groupby("名稱").count().index
+
+
 with st.sidebar:
     sigma_select = st.sidebar.selectbox( "**用於計算Greeks的波動率基礎**", ("台股指數的 HV","永昌權證的 IV","TXO9600的 IV","VIX"))
-    #B_tool = st.sidebar.selectbox( "**避險工具TXO Put**", ("TXO202006P9600","TXO202006P9800","TXO202006P10000","TXO202006P12000"))
+    st.text("施工中...")
+    B_tool = st.sidebar.selectbox( "**避險工具TXO Put**", ("TXO202006P9600","TXO202006P9800","TXO202006P10000","TXO202006P12000"))
+    K_B = TXO[TXO["代號"].isin([B_tool])]["履約價"].iloc[0]
 
 c1, c2 = st.columns(2, gap="small")
 
 # === HV、IV、VIX ===
-TXO  = pd.read_csv("data/TXO202006P9600.csv", index_col="Date")
-TXO.index = pd.to_datetime(TXO.index)
+TXOP9600  = pd.read_csv("data/TXO202006P9600.csv", index_col="Date")
+TXOP9600.index = pd.to_datetime(TXOP9600.index)
 VIX  = pd.read_csv("data/VIXTWN.csv", index_col="Date")
 VIX.index = pd.to_datetime(VIX.index)
 VIX = VIX*0.01
@@ -41,13 +54,12 @@ VIX = VIX*0.01
 info  = pd.read_csv("data/華南永昌案例_基本資料.csv")
 df_St  = pd.read_csv("data/華南永昌案例數據_計算.csv", index_col="Date")
 df_St.index = pd.to_datetime(df_St.index)
-#( "**用於計算Greeks的波動率基礎**", ("台股指數的 HV","永昌權證的 IV","TXO9600的 IV","VIX"))
 if sigma_select=="台股指數的 HV": sigma_greeks = df_St["HV"].tolist()
 if sigma_select=="永昌權證的 IV": sigma_greeks = df_St["A_IV"].tolist()
 if sigma_select=="TXO9600的 IV": sigma_greeks = df_St["B_IV"].tolist()
 if sigma_select=="VIX":          sigma_greeks = VIX["VIX_Close"].tolist()
 
-df_price = bsmodel.get_greeks_vol(df_St, [10000,9600,10000], ["Short Put","Long Put","Long Put"], r=0.01045, sigma=sigma_greeks, conversion=1)
+df_price = bsmodel.get_greeks_vol(df_St, [10000,K_B,10000], ["Short Put","Long Put","Long Put"], r=0.01045, sigma=sigma_greeks, conversion=1)
 tab1, tab2, tab3 = st.tabs(["📚 華南永昌案例基本資料","📚 華南永昌案例數據", "📈 Greeks"])
 tab1.dataframe(info)
 tab1.markdown("本研究假設無股息支付，因此q=0")
@@ -96,3 +108,5 @@ c2.dataframe(summary)
 tab2.dataframe(df_mix)
 tab3.dataframe(df_delta)
 tab4.dataframe(df_gamma)
+
+

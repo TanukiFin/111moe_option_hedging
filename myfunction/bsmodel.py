@@ -37,10 +37,13 @@ r=0.05
 #%% === Calculate Option Value, Greeks ===
 def hello():
     return "HELLO"
+
 def d1(S,K,r,sigma,T):
     return ((np.log(S/K) + (r + (sigma**2) / 2) * T)) / (sigma * np.sqrt(T))
+
 def d2(S,K,r,sigma,T):
     return d1(S,K,r,sigma,T) - sigma * np.sqrt(T)
+
 class call:
     def callprice(self,S,K,r,sigma,T):
         return norm.cdf(d1(S,K,r,sigma,T)) * S - norm.cdf(d2(S,K,r,sigma,T)) * K * np.exp(-r*T)
@@ -69,6 +72,7 @@ class call:
         self.vega = self.callvega(S,K,r,sigma,T)
         self.theta = self.calltheta(S,K,r,sigma,T)   
         self.greek = np.array([self.delta,self.gamma,self.vega,self.theta])
+
 class put:
     def putprice(self, S, K, r, sigma, T):
         return norm.cdf(-d2(S,K,r,sigma,T)) * K * np.exp(-r * T) - norm.cdf(-d1(S,K,r,sigma,T)) * S
@@ -97,6 +101,8 @@ class put:
         self.vega = self.putvega(S,K,r,sigma,T)
         self.theta = self.puttheta(S,K,r,sigma,T)
         self.greek = np.array([self.delta,self.gamma,self.vega,self.theta])
+
+
 def get_greeks(df_St, K_list, CP, r=0.05, sigma=0.3, T=1):
     df_greek = pd.DataFrame(columns=["A_Price","A_Delta","A_Gamma","A_Vega", "A_Theta",
                                      "B_Price","B_Delta","B_Gamma","B_Vega", "B_Theta",
@@ -120,6 +126,7 @@ def get_greeks(df_St, K_list, CP, r=0.05, sigma=0.3, T=1):
         df_greek.loc[i] = np.hstack([option[0], option[1], option[2], option[0][1:4]*quantity])     
     
     return pd.concat([df_St, df_greek],axis=1).fillna(0).round(4)
+
 def get_greeks_vol(df_St, K_list, CP, r=0.01045, sigma=[0.3], TTE=1, conversion=1):
     df_greek = pd.DataFrame(index = df_St.index,columns=["A_Price","A_Delta","A_Gamma","A_Vega", "A_Theta",
                                      "B_Price","B_Delta","B_Gamma","B_Vega", "B_Theta",
@@ -143,6 +150,7 @@ def get_greeks_vol(df_St, K_list, CP, r=0.01045, sigma=[0.3], TTE=1, conversion=
     
     return pd.concat([df_St[["St","T-t","HV","A_Close","A_IV","B_Settlement Price","B_IV"]], df_greek],axis=1).fillna(0).round(8)
 
+
 #%% === Simulate Stock Price(Future) ===
 def get_GBM_St(steps=20, r=0.05, sigma=0.3, T=1):
     dt = T/steps # calc each time step
@@ -157,9 +165,10 @@ def get_GBM_St(steps=20, r=0.05, sigma=0.3, T=1):
     time = np.linspace(0,T,steps+1)
     df_St = pd.concat([pd.DataFrame(time,columns=["t"]),pd.DataFrame(St,columns=["St"])],axis=1)   
     return df_St
-def get_default_St(St_sce, r=0.05, sigma=0.3, T=1, steps=20):
+
+def get_default_St(St_sce, T=1, steps=20):
     St_default = pd.read_csv("data/stock price.csv")
-    df_St = pd.DataFrame( np.linspace(0,T,steps+1) )
+    df_St = pd.DataFrame( np.linspace(0, T, steps+1) )
     if St_sce == "大漲":
         c="St1"
     elif St_sce == "小漲":

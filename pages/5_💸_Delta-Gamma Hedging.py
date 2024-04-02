@@ -66,11 +66,9 @@ with c2:
     CP_B = st.selectbox(
     "Option B: Type",
     ("Long Call","Long Put","Short Call","Short Put"), label_visibility ="collapsed" )
-    # C
-    K_C = st.number_input("**Option C: K =**",min_value=40,max_value=60,value=51)
-    CP_C = st.selectbox(
-    "Option C: Type",
-    ("Long Call","Long Put","Short Call","Short Put"), label_visibility ="collapsed" )
+    # C 用不到
+    K_C = 51
+    CP_C = "Long Call"
   
 
 st.info(f"""目前參數:　　:red[S0]={S0},　　:red[K]={K_A},　　:red[r]={r_input},　　:red[T]={round(T_input,2)},　　:red[sigma]={sigma_input} 
@@ -80,6 +78,7 @@ st.info(f"""目前參數:　　:red[S0]={S0},　　:red[K]={K_A},　　:red[r]={
 df_price = bsmodel.get_greeks(st.session_state.df_St, K_list=[K_A,K_B,K_C], CP = [CP_A, CP_B, CP_C])   
 
 #%% === B區: 股價 & 權證價圖 ===
+st.subheader("股價與選擇權價格")
 c1, c2 = st.columns(2, gap="large")
 with c1:
     tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data"])
@@ -89,11 +88,12 @@ with c1:
 
 with c2:
     tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data"])
-    fig = px.line(df_price.round(2), x="t", y="A_Price", title=CP_A[6:10]+" Option Price", height=300, template="plotly_white").update_layout(showlegend=False)
+    fig = px.line(df_price.round(2), x="t", y=["A_Price","B_Price"], title=CP_A[6:10]+" Option Price", height=300, template="plotly_white").update_layout(showlegend=False)
     tab1.plotly_chart(fig, use_container_width=True)
     tab2.write(df_price[["t","A_Price"]].round(2).rename({"A_Price":"Option Price"},axis=1))
 
 #%% === C區: Greeks圖 ===
+st.subheader("Delta、Gammam與Vega圖")
 tab1, tab2 = st.tabs(["📈 Greeks","📚 Data"])
 c1, c2, c3 = tab1.columns(3)
 fig = px.line(df_price.round(2), x="t", y=["A_Delta","B_Delta"], title="Delta", height=300, labels={"value":"Delta"}, template="plotly_white").update_layout(showlegend=False)
@@ -104,7 +104,8 @@ fig = px.line(df_price.round(2), x="t", y=["A_Vega","B_Vega"], title="Vega", hei
 c3.plotly_chart(fig, use_container_width=True)
 tab2.dataframe(df_price[["t","St","A_Price","A_Delta","A_Gamma","A_Vega","B_Price","B_Delta","B_Gamma","B_Vega" ]])
 
-#%% === D區: 損益圖Delta、Delta-Gamma、Delta-Gamma-Vega避險 ===
+#%% === D區: Delta、Delta-Gamma、Delta-Gamma-Vega避險損益圖 ===
+st.subheader("Delta、Delta-Gamma、Delta-Gamma-Vega避險損益圖")
 tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data"])
 c1, c2 = tab1.columns([2,1], gap="large")
 df_delta = hedging.get_delta_hedge(df_price, r_input, sigma_input, T_input, sell_price)
@@ -136,6 +137,3 @@ fig.update_layout(legend=dict(
 with c1:
     st.plotly_chart(fig, use_container_width=True)
 tab2.dataframe(df_delta)
-
-#%% === E區: ??? ===
-

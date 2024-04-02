@@ -164,15 +164,21 @@ st.latex(r"""
     \Delta \Pi = \theta {\Delta t} + \frac{1}{2} \Gamma \Delta S^2 
 """)
 
-deltat = 1/52
-T_total_steps = 20/52
-n = 100
+dt = 1/20
 S0=49
-x = np.linspace(30, 70, n) 
-Acall = bsmodel.call( S0, K_A, 0.05, 0.2, T_total_steps)
+x = np.linspace(30, 70, 100) 
 
-y = np.ones(len(x))*Acall.theta * deltat + 1/2 * np.ones(len(x))*Acall.gamma * (x-S0)**2
+c1, c2, c3 = st.columns(3)
+y = np.ones(len(x))*df_price["A_Theta"].iloc[0] * dt + 1/2 * np.ones(len(x))*df_price["A_Gamma"].iloc[0] * (x-S0)**2
+fig = px.line(x=x, y=y, title="A △Π", height=300, width=400, template="plotly_white")#.update_layout(showlegend=False)
+c1.plotly_chart(fig)
+y = np.ones(len(x))*df_price["B_Theta"].iloc[0] * dt + 1/2 * np.ones(len(x))*df_price["B_Gamma"].iloc[0] * (x-S0)**2
+fig = px.line(x=x, y=y, title="B △Π", height=300, width=400, template="plotly_white")#.update_layout(showlegend=False)
+c2.plotly_chart(fig)
+y = np.ones(len(x))*df_price["C_Theta"].iloc[0] * dt + 1/2 * np.ones(len(x))*df_price["C_Gamma"].iloc[0] * (x-S0)**2
+fig = px.line(x=x, y=y, title="C △Π", height=300, width=400, template="plotly_white")#.update_layout(showlegend=False)
+c3.plotly_chart(fig)
 
+st.image("pictures/greek letters.png")
 
-fig = px.line(x=x, y=y, title="△Π", height=300, width=400, template="plotly_white")#.update_layout(showlegend=False)
-st.plotly_chart(fig)
+#df_price = bsmodel.get_greeks(st.session_state.df_St, K_list=[K_A,K_B,K_C], CP = [CP_A, CP_B, CP_C])   

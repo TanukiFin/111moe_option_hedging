@@ -133,6 +133,7 @@ def get_gamma_hedge(df_price, r=0.05, sigma=0.3, T=1, sell_price=3):
     df_gamma = pd.concat([df_price["t"],df_gamma.astype(float)],axis=1)
     return df_gamma.round(2)
 
+# v2 沒有比較好
 def get_gamma_hedge_v2(df_price, r=0.05, sigma=0.3, T=1, sell_price=3):
     steps = len(df_price)-1
     dt = T/steps # calc each time step
@@ -142,8 +143,9 @@ def get_gamma_hedge_v2(df_price, r=0.05, sigma=0.3, T=1, sell_price=3):
                                      "A部位損益","B部位損益","現貨部位損益","總損益"])
     df_gamma["St"] = df_price["St"]
     df_gamma["B持有量"] = -1 * round( df_price["A_Gamma"] * quantity / df_price["B_Gamma"], 2 )
-    for i in range(3):
-        df_gamma.at[df_gamma.index[-i-1],"B持有量"] = 0
+    for i in [1,2,3]:             #修正最後三期
+        if df_price["A_Gamma"].iloc[-i] < - 0.1:
+            df_gamma.at[df_gamma.index[-i],"B持有量"] = 0
     df_gamma["B持有量"][df_gamma["B持有量"].isnull()]=0 # 最後三期變gamma = 0
     df_gamma.replace([np.inf, -np.inf], 0, inplace=True)
     df_gamma["B增減量"] = df_gamma["B持有量"] - df_gamma["B持有量"].shift()

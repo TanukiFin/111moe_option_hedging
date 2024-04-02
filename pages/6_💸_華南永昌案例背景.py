@@ -30,7 +30,7 @@ TAIEX  = pd.read_csv("data/TAIEX_noadj_201912-202006.csv", index_col="Date")
 tab1, tab2 = c1.tabs(["📈 TAIEX Chart", "📚 TAIEX Data"])
 TAIEX["K"] = 10000
 fig = px.line(TAIEX.loc["2019-12-18":"2020-05-31"].round(2), y=["Close","K"], 
-              title="TAIEX 2020年1-6月收盤價 ", height=400, template="plotly_white").update_layout(showlegend=True)
+              title="台指 2020年1-6月收盤價 & 履約價 ", height=400, template="plotly_white").update_layout(showlegend=True)
 fig.update_layout(legend=dict( orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
 tab1.plotly_chart(fig, use_container_width=True)
 tab2.dataframe(TAIEX)
@@ -40,17 +40,17 @@ TX  = pd.read_csv("data/TX2020.csv", index_col="日期")
 TX.index = pd.to_datetime(TX.index)
 name_list = TX.groupby("名稱").count().index
 filt = TX["名稱"]=="台指 2020/06"
-diff = pd.DataFrame(TX[filt]["標的證券價格"]-TX[filt]["收盤價"], columns=["價差"])
+diff = pd.DataFrame(TX[filt]["收盤價"]-TX[filt]["標的證券價格"], columns=["價差"])
 
 fig = make_subplots(rows=2, cols=1, shared_xaxes=True,  
                     vertical_spacing=0.03,  
                     row_width=[0.2, 0.7])
-fig.add_trace( go.Line(x=TX[filt].index, y=TX[filt]["收盤價"], name="收盤價"))
-fig.add_trace( go.Line(x=TX[filt].index, y=TX[filt]["標的證券價格"], name="標的證券價格"))
+fig.add_trace( go.Line(x=TX[filt].index, y=TX[filt]["收盤價"], name="台指期TX202006收盤價"))
+fig.add_trace( go.Line(x=TX[filt].index, y=TX[filt]["標的證券價格"], name="台指收盤價"))
 
 fig.add_trace(  go.Bar(x=diff.index, y=diff["價差"], name="價差"), row=2, col=1)
 
-fig.update_layout( title="台指期和加權指數 2020年1-5月收盤價", yaxis=dict(title="台指期、加權指數"), yaxis2=dict(title="價差"),
+fig.update_layout( title="台指 & 台指期 2020年1-6月收盤價", yaxis=dict(title="台指期、加權指數"), yaxis2=dict(title="價差"),
     showlegend=True, template="plotly_white" )
 fig.update_layout(legend=dict( orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
 tab1, tab2 = c2.tabs(["📈 期貨價差 Chart", "📚 期貨價差 Data"])
@@ -77,7 +77,7 @@ fig2 = px.line(pd.concat([TXO, VIX],axis=1).loc["2019-12-18":"2020-05-31"].round
 fig2.update_traces(name="歷史波動率", selector=dict(name="波動性")
 )
 
-tab1, tab2, tab3, tab4 = c2.tabs(["📈 TXO Chart", "📚 TXO Data", "📚 VIX Data", "📚 VIX 說明"])
+tab1, tab2, tab3, tab4 = c2.tabs(["📈 波動率 Chart", "📚 波動率 Data", "📚 VIX Data", "📚 VIX 說明"])
 tab1.plotly_chart(fig2, use_container_width=True)
 tab1.markdown("""
     * 歷史波動率: 依當日及往前260個台股指數交易日資料計算標準差 => 理論價格 \n
@@ -103,8 +103,8 @@ df_price = bsmodel.get_greeks_vol(df_St, [10000,9600,10000], ["Short Put","Long 
 
 
 #%% 
-tab1, tab2, tab3, tab4 = st.tabs(["📈 Charts", "📚 Data", "📚 3", "📚 4"])
-warrent  = pd.read_csv("data/93-96權證.csv")
+tab1, tab2= st.tabs(["📈 Charts", "📚 Data"])
+warrent  = pd.read_csv("data/權證日交易資料.csv")
 warrent["日期"] = pd.to_datetime(warrent["日期"])
 warrent["名稱"] = warrent["名稱"]+" "+warrent["履約價(元)"].apply(int).apply(str)
 
@@ -139,7 +139,14 @@ for mIdx in range(len(maturity)):
 # 選名稱
 filt = warrent[warrent["券商"].isin(chosen_brokers)&warrent["到期月份"].isin(chosen_maturity)]
 names = filt.groupby("名稱").count().index
-chosen_warrent = tab1.multiselect( "**權證:**", names, default=["臺股指永昌96售04 10000","臺股指凱基96售08 10000","臺股指群益96售02 10000","臺股指元大96售03 10400"])
+if 'openweb' not in st.session_state:
+    st.session_state.openweb = True
+    st.session_state.chosen_warrent = ["臺股指永昌96售04 10000","臺股指凱基96售08 10000","臺股指群益96售02 10000","臺股指元大96售03 10400"]
+
+chosen_warrent = [item for item in names if item in st.session_state.chosen_warrent]
+chosen_warrent = tab1.multiselect( "**權證:**", names, default=chosen_warrent)
+
+
 
 c1, c2 = tab1.columns(2)
 try:
@@ -159,10 +166,10 @@ try:
                        legend=dict( orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
     c1.plotly_chart(fig1, use_container_width=True)
     c2.plotly_chart(fig2, use_container_width=True)
+    c1.plotly_chart(fig3, use_container_width=True)
 except:
     print("ERORRRRRRRR")
     tab1.text("...請選擇權證產生收盤價線圖")
     pass
 tab2.dataframe(warrent[warrent["名稱"].isin(chosen_warrent)])
-st.plotly_chart(fig3, use_container_width=True)
 
