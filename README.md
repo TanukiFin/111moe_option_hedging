@@ -33,13 +33,14 @@ streamlit run Home.py
   * bsmodel.py
     <div align="left">
 
-    | name  | 說明 | input | output |
-    | ---------- | -----------| ---------- | -----------|
-    | call  | class   | S, K, r, sigma, T | price, delta, gamma, vega, theta, greek   |
-    | put   | class   | S, K, r, sigma, T | price, delta, gamma, vega, theta, greek   |
-    | get_greeks   | function   | df_St, K_list, CP, r=0.05, sigma=0.3, T=1, steps=20 |   |
-    | get_GBM_St   | function   | steps=20, r=0.05, sigma=0.3, T=1 |  |
-    | get_default_St   | function   | St_sce, r=0.05, sigma=0.3, T=1, steps=20 | |
+    | name  | 說明 | input | output | 說明 |
+    | ---------- | -----------| ---------- | -----------|---|
+    | call  | class   | S, K, r, sigma, T | price, delta, gamma, vega, theta, greek   | |
+    | put   | class   | S, K, r, sigma, T | price, delta, gamma, vega, theta, greek   | |
+    | get_greeks   | function   | df_St, K_list, CP, r=0.05, sigma=0.3, T=1, steps=20 |  模擬資料使用(p1~5) |
+    | get_greeks_vol  | function   | df_St, K_list, CP, r=0.05, sigma=0.3, T=1, steps=20 |  可調整sigma，華南永昌案例使用(6,7)  |
+    | get_GBM_St   | function   | steps=20, r=0.05, sigma=0.3, T=1 |  | |
+    | get_default_St   | function   | St_sce, r=0.05, sigma=0.3, T=1, steps=20 | | |
 
     </div>
     
